@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - AIIT.support</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        :root { --font-inter: 'Inter', sans-serif; }
+        body {
+            font-family: var(--font-inter);
+        }
+        .break-words {
+            word-break: break-word;
+        }
+        /* Hide the spinner arrows on number inputs */
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+    </style>
+</head>
+<body class="bg-stone-100 p-2 sm:p-3 lg:p-4">
+    <div class="max-w-7xl mx-auto bg-white p-3 sm:p-4 rounded-xl shadow-lg">
+        <header class="grid grid-cols-2 items-start mb-4 border-b border-stone-200 pb-3">
+            <div>
+                <a href="http://aiit.support" target="_blank" rel="noopener noreferrer" class="no-underline">
+                    <span class="text-2xl font-bold text-stone-800"><span class="text-teal-600">AI</span>IT.support</span>
+                </a>
+            </div>
+            <div class="flex items-start justify-end gap-x-4">
+                <div>
+                    <button id="logout-button" type="button" class="bg-stone-600 hover:bg-stone-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">Logout</button>
+                </div>
+            </div>
+        </header>
+        
+        <section class="mb-4 grid grid-cols-3 gap-4 items-start">
+            <div class="col-span-1">
+                <label for="from" class="block text-sm font-bold text-stone-700">FROM:</label>
+                <textarea id="from" class="mt-1 block w-full rounded-md border-stone-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 px-3 py-1 resize-none" rows="2"></textarea>
+            </div>
+            <div class="col-span-1">
+                <label for="client" class="block text-sm font-bold text-stone-700">BILL TO:</label>
+                <textarea id="client" class="mt-1 block w-full rounded-md border-stone-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 px-3 py-1 resize-none" required="" rows="2"></textarea>
+            </div>
+            <div class="col-span-1 flex flex-col items-end gap-y-1">
+                <div class="flex items-center gap-x-2">
+                    <label for="invoiceNumber" class="block text-sm font-medium text-stone-700">Invoice #:</label>
+                    <input id="invoiceNumber" class="block w-32 rounded-md border-stone-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 px-3 py-1" type="text" maxlength="10">
+                </div>
+                <div class="flex items-center gap-x-2">
+                    <label for="dateIssued" class="block text-sm font-medium text-stone-700">Date Issued:</label>
+                    <input id="dateIssued" class="block w-36 rounded-md border-stone-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 px-3 py-1" type="date">
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <form id="timeEntryForm">
+                <table class="min-w-full">
+                    <tbody class="align-top">
+                        <tr>
+                            <td class="pr-2 py-1">
+                                <textarea id="description" class="block w-full rounded-md border-stone-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 px-3 py-1 resize-none" maxlength="282" placeholder="Description of products & services" rows="1" autofocus></textarea>
+                            </td>
+                            <td class="w-32 px-2 py-1">
+                                <div class="flex gap-x-2">
+                                    <select id="unitType" class="block rounded-md border-stone-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 py-2 text-sm h-full">
+                                        <option value="Hrs">Hrs</option>
+                                        <option value="Qty">Qty</option>
+                                    </select>
+                                    <input id="unitValue" class="block w-full rounded-md border-stone-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 py-1" required="">
+                                </div>
+                            </td>
+                             <td class="w-16 px-2 py-1">
+                                <input id="rate" class="block w-full rounded-md border-stone-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 py-1" type="number" placeholder="Rate" required="" step="0.01" min="0">
+                            </td>
+                             <td class="w-32 px-2 py-1">
+                                <button id="add-item-button" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-lg transition-colors whitespace-nowrap" type="submit" disabled>Add</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </form>
+            <div class="overflow-x-auto border-t border-stone-200 mt-4">
+                <table id="invoiceTable" class="min-w-full divide-y divide-stone-200">
+                    <thead class="bg-stone-50">
+                        <tr>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-stone-500 uppercase tracking-wider" scope="col">Description</th>
+                            <th class="w-1 whitespace-nowrap px-4 py-2 text-right text-xs font-medium text-stone-500 uppercase tracking-wider" scope="col">Qty / Hrs</th>
+                            <th class="w-1 whitespace-nowrap px-4 py-2 text-right text-xs font-medium text-stone-500 uppercase tracking-wider" scope="col">Rate</th>
+                            <th class="w-1 whitespace-nowrap px-4 py-2 text-right text-xs font-medium text-stone-500 uppercase tracking-wider" scope="col">Total</th>
+                            <th class="w-1 whitespace-nowrap px-4 py-2 text-left text-xs font-medium text-stone-500 uppercase tracking-wider" scope="col">Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-stone-200"></tbody>
+                    <tfoot class="bg-stone-50">
+                        <tr class="border-t-2 border-stone-300">
+                            <td colspan="3" class="px-4 py-2 text-right font-bold text-stone-900">Total Amount Due</td>
+                            <td id="grandTotalCell" class="px-4 py-2 whitespace-nowrap font-bold text-stone-900 text-right"></td>
+                            <td></td> </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </section>
+
+        <div class="mt-4 border-t border-stone-200 pt-4 flex justify-between items-end gap-x-4">
+            <div class="flex-grow">
+                <textarea id="notes" class="mt-1 block w-full rounded-md border-stone-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 px-3 py-1" rows="1" placeholder="Notes / Payment Terms:"></textarea>
+            </div>
+            <div class="flex flex-col gap-y-2">
+                <button id="newInvoiceBtn" type="button" class="bg-stone-200 hover:bg-stone-300 text-red-600 font-bold py-2 px-4 rounded-lg transition-colors">New Invoice</button>
+                <button id="exportPdfBtn" type="button" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">Export as PDF</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const clientInput = document.getElementById('client');
+            const fromInput = document.getElementById('from');
+            const unitTypeSelect = document.getElementById('unitType');
+            const unitValueInput = document.getElementById('unitValue');
+            const rateInput = document.getElementById('rate');
+            const invoiceTableBody = document.querySelector('#invoiceTable tbody');
+            const grandTotalCell = document.getElementById('grandTotalCell');
+            const invoiceNumberInput = document.getElementById('invoiceNumber');
+            const dateIssuedInput = document.getElementById('dateIssued');
+            const notesInput = document.getElementById('notes');
+            const descriptionInput = document.getElementById('description');
+            const timeEntryForm = document.getElementById('timeEntryForm');
+
+            // Buttons
+            const exportPdfBtn = document.getElementById('exportPdfBtn');
+            const logoutButton = document.getElementById('logout-button');
+            const newInvoiceBtn = document.getElementById('newInvoiceBtn');
+            const addItemButton = document.getElementById('add-item-button');
+
+            let invoiceData = [];
+            
+            function formatCurrency(amount) {
+                const num = parseFloat(amount) || 0;
+                return `$${num.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            }
+
+            function getTodayDateString() {
+                const today = new Date();
+                const year = today.getFullYear();
+                const month = String(today.getMonth() + 1).padStart(2, '0'); // JS months are 0-11
+                const day = String(today.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            }
+
+            function autoResizeTextarea(el) {
+                el.style.height = 'auto';
+                el.style.height = (el.scrollHeight) + 'px';
+            }
+
+            function setGlobalDefaults() {
+                invoiceNumberInput.value = localStorage.getItem('lastInvoiceNumber') || '001';
+                fromInput.value = localStorage.getItem('lastFrom') || 'Your Company, Inc.';
+                clientInput.value = localStorage.getItem('lastClient') || 'Customer Name';
+                notesInput.value = localStorage.getItem('lastNotes') || 'Payment is due within 15 days.';
+                dateIssuedInput.value = getTodayDateString();
+                autoResizeTextarea(fromInput);
+                autoResizeTextarea(clientInput);
+            }
+
+            function setLineItemEntryDefaults() {
+                descriptionInput.focus();
+            }
+
+            function resetAllLineItemFields() {
+                descriptionInput.value = '';
+                unitValueInput.value = '';
+                rateInput.value = '';
+                unitTypeSelect.selectedIndex = 0;
+                autoResizeTextarea(descriptionInput);
+                updateUnitFields();
+                descriptionInput.focus();
+            }
+
+            function formatTimeInput() {
+                let value = unitValueInput.value.replace(/\D/g, '');
+                let hours = value.substring(0, 2);
+                let minutes = value.substring(2, 4);
+
+                if (parseInt(hours, 10) > 24) {
+                    hours = '24';
+                    minutes = '00';
+                }
+                if (parseInt(hours, 10) === 24) {
+                    minutes = '00';
+                }
+                if (parseInt(minutes, 10) > 59) {
+                    minutes = '59';
+                }
+                
+                value = hours + minutes;
+                
+                if (value.length > 2) {
+                    unitValueInput.value = value.substring(0, 2) + ':' + value.substring(2, 4);
+                } else {
+                    unitValueInput.value = value;
+                }
+            }
+
+            function formatAsInteger() {
+                unitValueInput.value = unitValueInput.value.replace(/\D/g, '');
+            }
+
+
+
+            function updateUnitFields() {
+                const selectedUnit = unitTypeSelect.value;
+                if (selectedUnit === 'Hrs') {
+                    unitValueInput.placeholder = 'hh:mm';
+                    unitValueInput.type = 'text';
+                    unitValueInput.maxLength = 5;
+                    unitValueInput.removeEventListener('input', formatAsInteger);
+                    unitValueInput.addEventListener('input', formatTimeInput);
+                } else { // Quantity
+                    unitValueInput.placeholder = 'Qty';
+                    unitValueInput.type = 'number';
+                    unitValueInput.maxLength = 6;
+                    unitValueInput.removeEventListener('input', formatTimeInput);
+                    unitValueInput.addEventListener('input', formatAsInteger);
+                }
+                resizeSelectToFitContent(unitTypeSelect);
+            }
+
+            async function initializeDashboard() {
+                try {
+                    const invoiceResponse = await fetch('/api/invoices');
+                    if (!invoiceResponse.ok) { throw new Error('Failed to fetch from API'); }
+
+                    const savedInvoice = await invoiceResponse.json();
+
+                    if (savedInvoice && savedInvoice.invoiceNumber) { 
+                        invoiceNumberInput.value = savedInvoice.invoiceNumber;
+                        fromInput.value = savedInvoice.contractorName;
+                        notesInput.value = savedInvoice.notes;
+                        clientInput.value = savedInvoice.client; 
+                        invoiceData = savedInvoice.items || [];
+                    } else {
+                        setGlobalDefaults();
+                        const savedItems = localStorage.getItem('lastInvoiceData');
+                        invoiceData = savedItems ? JSON.parse(savedItems) : [];
+                    }
+                } catch (error) {
+                    console.error('Failed to initialize dashboard:', error);
+                    setGlobalDefaults();
+                    const savedItems = localStorage.getItem('lastInvoiceData');
+                    invoiceData = savedItems ? JSON.parse(savedItems) : [];
+                } finally {
+                    dateIssuedInput.value = getTodayDateString();
+                    resetAllLineItemFields();
+                    renderInvoice();
+                    autoResizeTextarea(fromInput);
+                    autoResizeTextarea(clientInput);
+                }
+            }
+            
+            function syncTextareaHeights() {
+                fromInput.style.height = 'auto';
+                clientInput.style.height = 'auto';
+                const fromHeight = fromInput.scrollHeight;
+                const clientHeight = clientInput.scrollHeight;
+                const maxHeight = Math.max(fromHeight, clientHeight);
+                fromInput.style.height = maxHeight + 'px';
+                clientInput.style.height = maxHeight + 'px';
+            }
+
+            async function saveInvoiceData() {
+                // Save latest values to browser storage
+                localStorage.setItem('lastInvoiceNumber', invoiceNumberInput.value);
+                localStorage.setItem('lastFrom', fromInput.value);
+                localStorage.setItem('lastClient', clientInput.value);
+                localStorage.setItem('lastNotes', notesInput.value);
+                localStorage.setItem('lastInvoiceData', JSON.stringify(invoiceData));
+
+                const payload = {
+                    invoiceNumber: invoiceNumberInput.value,
+                    contractorName: fromInput.value,
+                    client: clientInput.value,
+                    notes: notesInput.value,
+                    items: invoiceData
+                };
+                try {
+                    await fetch('/api/invoices', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                } catch (error) {
+                    console.error('Failed to save invoice data:', error);
+                }
+            }
+            
+            function updateGrandTotal() {
+                const grandTotal = invoiceData.reduce((sum, item) => sum + (parseFloat(item.total) || 0), 0);
+                grandTotalCell.textContent = formatCurrency(grandTotal);
+            }
+
+            function renderInvoice() {
+                invoiceTableBody.innerHTML = '';
+
+                invoiceData.forEach((entry, index) => {
+                    const newRow = document.createElement('tr');
+                    
+                    const quantityDisplay = entry.unit === 'Hrs' ? (parseFloat(entry.quantity) || 0).toFixed(2) : (parseInt(entry.quantity, 10) || 0);
+                    
+                    newRow.innerHTML = `
+                        <td class="px-4 py-2 text-sm text-stone-900 break-words">${entry.description}</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-stone-500 text-right">${quantityDisplay}</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-stone-500 text-right">${formatCurrency(entry.rate)}</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-stone-500 text-right">${formatCurrency(entry.total)}</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-center"><button class="delete-button text-red-600 hover:text-red-800 font-bold" data-index="${index}">X</button></td>
+                    `;
+                    invoiceTableBody.appendChild(newRow);
+                });
+
+                updateGrandTotal();
+            }
+            
+            function parseTimeToDecimal(timeString) {
+                if (!timeString) return 0;
+                const parts = String(timeString).split(':');
+                const hours = parseInt(parts[0], 10) || 0;
+                const minutes = parseInt(parts[1], 10) || 0;
+                return hours + (minutes / 60);
+            }
+
+            timeEntryForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                
+                if (descriptionInput.value.trim() === '') {
+                    descriptionInput.value = 'Products & Services';
+                }
+                
+                let value;
+                if (unitTypeSelect.value === 'Hrs') {
+                    value = parseTimeToDecimal(unitValueInput.value);
+                } else {
+                    value = parseInt(unitValueInput.value, 10) || 0;
+                }
+
+                const rate = parseFloat(rateInput.value) || 0;
+                const total = value * rate;
+
+                invoiceData.push({
+                    client: clientInput.value,
+                    date: dateIssuedInput.value,
+                    description: descriptionInput.value,
+                    quantity: value,
+                    unit: unitTypeSelect.value,
+                    rate: rate,
+                    total: total
+                });
+                renderInvoice();
+                saveInvoiceData();
+                setLineItemEntryDefaults();
+            });
+
+            invoiceTableBody.addEventListener('click', function(event) {
+                if (event.target.classList.contains('delete-button')) {
+                    const index = parseInt(event.target.dataset.index, 10);
+                    invoiceData.splice(index, 1);
+                    renderInvoice();
+                    saveInvoiceData();
+                }
+            });
+            
+            logoutButton.addEventListener('click', async () => {
+                const response = await fetch('/logout', { method: 'POST' });
+                if (response.ok) {
+                    window.location.href = '/login.html';
+                } else {
+                    alert('Logout failed.');
+                }
+            });
+
+            descriptionInput.addEventListener('input', function() {
+                autoResizeTextarea(this);
+                validateLineItemForm();
+            });
+            unitValueInput.addEventListener('input', validateLineItemForm);
+            rateInput.addEventListener('input', validateLineItemForm);
+            
+            function validateLineItemForm() {
+                const isDescriptionValid = descriptionInput.value.trim() !== '';
+                const isUnitValueValid = unitValueInput.value.trim() !== '';
+                const isRateValid = rateInput.value.trim() !== '';
+                addItemButton.disabled = !(isDescriptionValid && isUnitValueValid && isRateValid);
+            }
+
+            fromInput.addEventListener('input', syncTextareaHeights);
+            clientInput.addEventListener('input', syncTextareaHeights);
+            
+            function resizeSelectToFitContent(selectElement) {
+                const tempSpan = document.createElement('span');
+                document.body.appendChild(tempSpan);
+                tempSpan.style.font = window.getComputedStyle(selectElement).font;
+                tempSpan.style.visibility = 'hidden';
+                tempSpan.style.position = 'absolute';
+                tempSpan.textContent = selectElement.options[selectElement.selectedIndex].text;
+                
+                const padding = 32;
+                selectElement.style.width = `${tempSpan.offsetWidth + padding}px`;
+                
+                document.body.removeChild(tempSpan);
+            }
+
+            unitTypeSelect.addEventListener('change', () => resizeSelectToFitContent(unitTypeSelect));
+
+            [invoiceNumberInput, notesInput, clientInput, fromInput].forEach(input => {
+                input.addEventListener('input', saveInvoiceData);
+            });
+            
+            function drawPdfHeader(doc, currentY, margin, pageWidth, teal_600, stone_700, currentInvoiceNumber, dateIssued) {
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(14);
+                const wwwPart = 'www.';
+                const aiPart = 'AI';
+                doc.setTextColor.apply(null, stone_700);
+                doc.text(wwwPart, margin, currentY);
+                let currentX = margin + doc.getTextWidth(wwwPart);
+
+                doc.setTextColor.apply(null, teal_600);
+                doc.text(aiPart, currentX, currentY);
+                currentX += doc.getTextWidth(aiPart);
+                
+                const restPart = 'IT.support';
+                doc.setTextColor.apply(null, stone_700);
+                doc.text(restPart, currentX, currentY);
+                
+                const logoWidth = doc.getTextWidth('www.AIIT.support');
+                doc.link(margin, currentY - doc.getFontSize(), logoWidth, doc.getFontSize(), { url: 'http://www.aiit.support' });
+                
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(11);
+                doc.setTextColor.apply(null, stone_700);
+                doc.text(`Invoice #: ${currentInvoiceNumber}`, pageWidth - margin, currentY, { align: 'right' });
+                doc.text(`Date Issued: ${dateIssued}`, pageWidth - margin, currentY + 6, { align: 'right' });
+            }
+
+            function drawPdfAddresses(doc, currentY, margin, halfPageWidth, teal_600, stone_700) {
+                const fromAllLines = fromInput.value.split('\n');
+                const fromFirstLine = fromAllLines.shift() || '';
+                const fromRestOfLinesText = fromAllLines.join('\n');
+
+                const clientAllLines = clientInput.value.split('\n');
+                const clientFirstLine = clientAllLines.shift() || '';
+                const clientRestOfLinesText = clientAllLines.join('\n');
+
+                const columnWidth = halfPageWidth - margin - 5;
+
+                // --- Draw FROM section ---
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(12);
+                doc.setTextColor.apply(null, teal_600);
+                doc.text('FROM:', margin, currentY, { align: 'left' });
+                let fromBlockY = currentY + 5;
+
+                doc.setFontSize(11);
+                doc.setTextColor.apply(null, stone_700);
+                const splitFirstFrom = doc.splitTextToSize(fromFirstLine, columnWidth);
+                doc.text(splitFirstFrom, margin, fromBlockY, { align: 'left' });
+                let fromHeight = doc.getTextDimensions(splitFirstFrom).h;
+                fromBlockY += fromHeight;
+
+                doc.setFont('helvetica', 'normal');
+                if (fromRestOfLinesText) {
+                    const splitRestFrom = doc.splitTextToSize(fromRestOfLinesText, columnWidth);
+                    doc.text(splitRestFrom, margin, fromBlockY, { align: 'left' });
+                    fromHeight += doc.getTextDimensions(splitRestFrom).h;
+                }
+
+                // --- Draw BILL TO section ---
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(12);
+                doc.setTextColor.apply(null, teal_600);
+                doc.text('BILLED TO:', halfPageWidth, currentY, { align: 'left' });
+                let clientBlockY = currentY + 5;
+
+                doc.setFontSize(11);
+                doc.setTextColor.apply(null, stone_700);
+                const splitFirstClient = doc.splitTextToSize(clientFirstLine, columnWidth);
+                doc.text(splitFirstClient, halfPageWidth, clientBlockY, { align: 'left' });
+                let clientHeight = doc.getTextDimensions(splitFirstClient).h;
+                clientBlockY += clientHeight;
+                
+                doc.setFont('helvetica', 'normal');
+                if (clientRestOfLinesText) {
+                    const splitRestClient = doc.splitTextToSize(clientRestOfLinesText, columnWidth);
+                    doc.text(splitRestClient, halfPageWidth, clientBlockY, { align: 'left' });
+                    clientHeight += doc.getTextDimensions(splitRestClient).h;
+                }
+
+                return Math.max(fromHeight, clientHeight);
+            }
+
+            function drawPdfFooter(doc, pageNumber, pageCount, margin, pageWidth) {
+                doc.setFontSize(9);
+                doc.setTextColor.apply(null, [168, 162, 158]);
+                
+                const footerY = doc.internal.pageSize.height - 10;
+                const textPart1 = '© 2025 ';
+                const textPart2_link = 'www.AIIT.support';
+                const textPart3 = '. All Rights Reserved.';
+                
+                const textPart1Width = doc.getTextWidth(textPart1);
+                const textPart2Width = doc.getTextWidth(textPart2_link);
+                const linkX = margin + textPart1Width;
+                
+                // Draw footer text in parts
+                doc.text(textPart1, margin, footerY);
+                doc.text(textPart2_link, linkX, footerY);
+                doc.text(textPart3, linkX + textPart2Width, footerY);
+                
+                // Add link annotation over the "AIIT.Support" text
+                doc.link(linkX, footerY - doc.getFontSize(), textPart2Width, doc.getFontSize(), { url: 'http://www.aiit.support' });
+                
+                // Draw page number
+                doc.text('Page ' + pageNumber + ' of ' + pageCount, pageWidth - margin, footerY, { align: 'right' });
+            }
+
+            function clearInvoice() {
+                invoiceData = [];
+                setGlobalDefaults();
+                resetAllLineItemFields();
+                renderInvoice();
+            }
+
+            function exportToPdf() {
+                if (invoiceData.length === 0) {
+                    alert("Cannot export an empty invoice.");
+                    return;
+                }
+                const currentInvoiceNumber = invoiceNumberInput.value;
+                const dateIssued = new Date(dateIssuedInput.value + 'T00:00:00').toLocaleDateString('en-US');
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                const teal_600 = [13, 148, 136];
+                const stone_700 = [68, 64, 60];
+                const pageWidth = doc.internal.pageSize.getWidth();
+                const margin = 14;
+                const halfPageWidth = pageWidth / 2;
+                
+                let currentY = 22;
+
+                drawPdfHeader(doc, currentY, margin, pageWidth, teal_600, stone_700, currentInvoiceNumber, dateIssued);
+                currentY += 16;
+                const addressBlockHeight = drawPdfAddresses(doc, currentY, margin, halfPageWidth, teal_600, stone_700);
+                const tableStartY = currentY + 6 + addressBlockHeight + 10;
+                
+                const head = [['Description of Work', 'Qty/Hrs', 'Rate', 'Total']];
+                const body = invoiceData.map(entry => {
+                    const quantityDisplay = entry.unit === 'Hrs' ? (parseFloat(entry.quantity) || 0).toFixed(2) : (parseInt(entry.quantity, 10) || 0);
+                    return [
+                        entry.description,
+                        quantityDisplay,
+                        formatCurrency(entry.rate),
+                        formatCurrency(entry.total)
+                    ];
+                });
+                const grandTotal = invoiceData.reduce((sum, item) => sum + (parseFloat(item.total) || 0), 0);
+
+                doc.autoTable({
+                    head: head,
+                    body: body,
+                    startY: tableStartY,
+                    headStyles: { fillColor: teal_600, textColor: [255, 255, 255] },
+                    foot: [
+                        [
+                            { 
+                                content: 'Total Amount Due:', 
+                                colSpan: 3, 
+                                styles: { halign: 'right' } 
+                            },
+                            { 
+                                content: formatCurrency(grandTotal), 
+                                styles: { halign: 'right' } 
+                            }
+                        ]
+                    ],
+                    footStyles: { 
+                        fontStyle: 'bold', 
+                        fillColor: [245, 245, 244], 
+                        textColor: [28, 25, 23] 
+                    },
+                    columnStyles: {
+                        0: { halign: 'left', cellWidth: 'auto' },
+                        1: { halign: 'right', cellWidth: 25 },
+                        2: { halign: 'right', cellWidth: 25 },
+                        3: { halign: 'right', cellWidth: 30 }
+                    },
+                    didDrawPage: function(data) {
+                        const pageCount = doc.internal.getNumberOfPages();
+                        if (data.pageNumber === pageCount) {
+                            const finalY = doc.lastAutoTable.finalY;
+                            if (notesInput.value.trim()) {
+                                doc.setFontSize(10);
+                                doc.setTextColor.apply(null, stone_700);
+                                const notesLabel = 'Notes: ';
+                                const notesY = finalY + 5;
+                                doc.text(notesLabel, margin, notesY);
+                                const labelWidth = doc.getTextWidth(notesLabel);
+                                const textX = margin + labelWidth;
+                                const availableWidth = pageWidth - margin - textX;
+                                const notesLines = doc.splitTextToSize(notesInput.value, availableWidth);
+                                doc.text(notesLines, textX, notesY);
+                            }
+                        }
+                    }
+                });
+                
+                const pageCount = doc.internal.getNumberOfPages();
+                for (let i = 1; i <= pageCount; i++) {
+                    doc.setPage(i);
+                    drawPdfFooter(doc, i, pageCount, margin, pageWidth);
+                }
+                doc.save(`invoice-${currentInvoiceNumber}.pdf`);
+                
+                // Increment Invoice Number after export
+                const currentInvoiceStr = invoiceNumberInput.value;
+                const match = currentInvoiceStr.match(/(\d+)$/);
+
+                if (match) {
+                    const numberPart = match[1];
+                    const prefix = currentInvoiceStr.substring(0, currentInvoiceStr.length - numberPart.length);
+                    const currentNum = parseInt(numberPart, 10);
+                    const newNum = currentNum + 1;
+                    const newNumberPart = String(newNum).padStart(numberPart.length, '0');
+                    invoiceNumberInput.value = prefix + newNumberPart;
+                    saveInvoiceData();
+                }
+            }
+            
+            exportPdfBtn.addEventListener('click', exportToPdf);
+            newInvoiceBtn.addEventListener('click', clearInvoice);
+            
+            // --- INITIALIZATION ---
+            initializeDashboard();
+        });
+    </script>
+</body>
+</html>
