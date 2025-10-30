@@ -24,6 +24,32 @@
       display: none;
       -webkit-appearance: none;
     }
+
+    /* --- [MODIFIED] Step 2: Make inputs invisible --- */
+    .invisible-input, .invisible-input:focus {
+      border: none !important;
+      outline: none !important;
+      box-shadow: none !important;
+      -webkit-appearance: none !important;
+      -moz-appearance: none !important;
+      appearance: none !important;
+      background-color: transparent !important;
+      resize: none !important;
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+    }
+    /* Special handling for the invoice number's hash */
+    #invoiceNumber.invisible-input {
+      padding-left: 1.25rem !important; /* Keep padding for the '#' */
+    }
+    /* Special handling for the date input's icon */
+    #dateIssued.invisible-input {
+        padding-left: 2.5rem !important; /* Keep padding for the icon */
+        padding-right: 0.75rem !important; /* Restore right padding */
+    }
+    /* [REMOVED] .address-label rule was here */
+    /* --- [END MODIFIED] --- */
+
   </style>
 </head>
 <body class="bg-stone-100 p-4 sm:p-6 lg:p-8 safe-top safe-bottom">
@@ -40,7 +66,7 @@
           <svg id="preview-icon-eye" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"> <path d="M10 12.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z"/> <path fill-rule="evenodd" d="M.664 10.59a1.651 1.651 0 010-1.18l.877-.558a.825.825 0 01.996.066l.742.662a.824.824 0 001.076 0l.742-.662a.825.825 0 01.996-.066l.877.558a1.651 1.651 0 010 1.18l-.877.558a.825.825 0 01-.996.066l-.742-.662a.824.824 0 00-1.076 0l-.742.662a.825.825 0 01-.996-.066l-.877-.558zM17.476 9.41a1.651 1.651 0 010 1.18l-.877.558a.825.825 0 01-.996.066l-.742-.662a.824.824 0 00-1.076 0l-.742.662a.825.825 0 01-.996.066l-.877-.558a1.651 1.651 0 010-1.18l.877-.558a.825.825 0 01.996-.066l.742.662a.824.824 0 001.076 0l.742.662a.825.825 0 01.996.066l.877.558z" clip-rule="evenodd"/> </svg>
           <svg id="preview-icon-eye-slash" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 hidden"> <path fill-rule="evenodd" d="M3.28 2.22a.75.75 0 00-1.06 1.06l14.5 14.5a.75.75 0 101.06-1.06l-1.745-1.745a10.029 10.029 0 003.3-4.38 1.651 1.651 0 000-1.18l-.877-.558a.825.825 0 00-.996.066l-.74.659a.824.824 0 01-1.076 0l-.74-.659a.825.825 0 00-.996-.066l-.877.558a1.651 1.651 0 000 1.18l.877.558a.825.825 0 01.996.066l.484.43a6.938 6.938 0 01-5.132 2.131A6.938 6.938 0 014.1 11.03l-.75-.66a.825.825 0 00-.996-.066l-.877.558a1.651 1.651 0 000 1.18l.877.558a.825.825 0 01.996.066l1.916 1.7-.863.764a.824.824 0 01-1.076 0l-.74-.659a.825.825 0 00-.996-.066l-.877.558a1.651 1.651 0 000 1.18l.877.558a.825.825 0 01.996.066l.74.659a.824.824 0 001.076 0l11.16-9.871L3.28 2.22zM8.38 8.38a2.5 2.5 0 003.24 3.24l-3.24-3.24zM10 12.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z" clip-rule="evenodd"/></svg>
         </button>
-        <button id="exportPdfBtn" type="button" class="bg-teal-600 hover:bg-teal-700 text-white w-10 h-10 rounded-full transition-colors flex items-center justify-center shadow-lg" aria-label="Export as PDF" title="Export as PDF">
+        <button id="exportPdfBtn" type="button" class="bg-teal-600 hover:bg-teal-700 text-white w-10 h-10 rounded-full transition-colors flex items-center justify-center shadow-lg border border-stone-200" aria-label="Export as PDF" title="Export as PDF">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
         </button>
       </div>
@@ -54,36 +80,49 @@
           </a>
         </div>
         <div class="flex-1 flex justify-end">
-          <div class="grid grid-cols-[auto,1fr] items-center gap-x-2 gap-y-2">
-            <label for="invoiceNumber" class="text-sm font-bold uppercase text-stone-700 text-right">INVOICE:</label>
-            <div class="relative">
-              <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-stone-500">#</span>
-              <input id="invoiceNumber" type="text" maxlength="8" class="w-28 rounded-md border-stone-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 py-1 pr-3 pl-7" />
+          <div class="flex flex-col items-end gap-y-2">
+            
+            <div class="flex items-center gap-x-2">
+              <label for="invoiceNumber" class="text-sm font-bold uppercase text-stone-700 text-right">INVOICE:</label>
+              <div class="relative">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-stone-500">#</span>
+                <input id="invoiceNumber" type="text" maxlength="8" class="invisible-input font-bold w-28 rounded-md border-stone-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 py-1 pr-3 pl-7" />
+              </div>
             </div>
             
-            <label for="dateIssued" class="text-sm font-bold uppercase text-stone-700 text-right">DATE ISSUED:</label>
-            <div class="relative">
-              <button type="button" class="absolute inset-y-0 left-0 flex items-center pl-3 text-stone-500 cursor-pointer" onclick="document.getElementById('dateIssued').showPicker()" aria-label="Open calendar">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
-                  <path fill-rule="evenodd" d="M5.75 3a.75.75 0 01.75.75v.25h7V3.75a.75.75 0 011.5 0V4h.25A2.75 2.75 0 0118 6.75v8.5A2.75 2.75 0 0115.25 18H4.75A2.75 2.75 0 012 15.25v-8.5A2.75 2.75 0 014.75 4H5v-.25A.75.75 0 015.75 3zM4.5 6.75A1.25 1.25 0 003.25 8v7.25c0 .69.56 1.25 1.25 1.25h10.5c.69 0 1.25-.56 1.25-1.25V8c0-.69-.56-1.25-1.25-1.25H4.5z" clip-rule="evenodd" />
-                </svg>
-              </button>
-              <input id="dateIssued" type="date" class="w-full text-right rounded-md border-stone-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 py-1 pr-3 pl-10 cursor-pointer" />
+            <div class="flex items-center gap-x-2">
+              <label for="dateIssued" class="text-sm font-bold uppercase text-stone-700 text-right whitespace-nowrap">DATE ISSUED:</label>
+              <div class="relative">
+                <button type="button" class="absolute inset-y-0 left-0 flex items-center pl-3 text-stone-500 cursor-pointer" onclick="document.getElementById('dateIssued').showPicker()" aria-label="Open calendar">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+                    <path fill-rule="evenodd" d="M5.75 3a.75.75 0 01.75.75v.25h7V3.75a.75.75 0 011.5 0V4h.25A2.75 2.75 0 0118 6.75v8.5A2.75 2.75 0 0115.25 18H4.75A2.75 2.75 0 012 15.25v-8.5A2.75 2.75 0 014.75 4H5v-.25A.75.75 0 015.75 3zM4.5 6.75A1.25 1.25 0 003.25 8v7.25c0 .69.56 1.25 1.25 1.25h10.5c.69 0 1.25-.56 1.25-1.25V8c0-.69-.56-1.25-1.25-1.25H4.5z" clip-rule="evenodd" />
+                  </svg>
+                </button>
+                <input id="dateIssued" type="date" class="invisible-input font-bold uppercase w-full text-right rounded-md border-stone-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 py-1 pr-3 pl-10 cursor-pointer" />
+              </div>
             </div>
+
           </div>
         </div>
       </div>
       
       <div class="p-6 border-t border-stone-200">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div class="min-w-[12rem] self-start grid grid-cols-[auto,1fr] items-start gap-x-2">
-            <label for="from" class="block text-sm font-bold text-teal-600 whitespace-nowrap pt-1 text-right">FROM:</label>
-            <textarea id="from" rows="3" class="block w-full rounded-md border-stone-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 px-3 py-1"></textarea>
+        <div class="grid grid-cols-2 gap-6">
+          
+          <div class="min-w-[12rem] self-start grid grid-cols-[auto,1fr] items-start gap-x-2 gap-y-1">
+            <label for="from-line1" class="block text-sm font-bold text-teal-600 whitespace-nowrap pt-1 text-right">FROM:</label>
+            <input id="from-line1" type="text" class="invisible-input font-bold block w-full rounded-md py-1 px-3" />
+            
+            <label for="from-rest" class="block">&nbsp;</label> <textarea id="from-rest" rows="2" class="invisible-input block w-full rounded-md py-1 px-3"></textarea>
           </div>
-          <div class="min-w-[12rem] self-start grid grid-cols-[auto,1fr] items-start gap-x-2">
-            <label for="client" class="block text-sm font-bold text-teal-600 whitespace-nowrap pt-1 text-right">BILL TO:</label>
-            <textarea id="client" rows="3" required class="block w-full rounded-md border-stone-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 px-3 py-1"></textarea>
+          
+          <div class="min-w-[12rem] self-start grid grid-cols-[auto,1fr] items-start gap-x-2 gap-y-1">
+            <label for="client-line1" class="block text-sm font-bold text-teal-600 whitespace-nowrap pt-1 text-right">BILL TO:</label>
+            <input id="client-line1" type="text" required class="invisible-input font-bold block w-full rounded-md py-1 px-3" />
+            
+            <label for="client-rest" class="block">&nbsp;</label> <textarea id="client-rest" rows="2" required class="invisible-input block w-full rounded-md py-1 px-3"></textarea>
           </div>
+
         </div>
       </div>
     </div>
@@ -99,43 +138,42 @@
             <col class="w-[44px]">
           </colgroup>
           <thead class="bg-teal-600">
-            <tr>
-              <th scope="col" class="px-4 py-2 text-left    text-xs font-medium text-white uppercase tracking-wider">Description</th>
-              <th scope="col" class="px-4 py-2 text-right   text-xs font-medium text-white uppercase tracking-wider whitespace-nowrap">Qty / Hrs</th>
-              <th scope="col" class="px-2 py-2 text-right   text-xs font-medium text-white uppercase tracking-wider">Rate</th>
-              <th scope="col" class="px-2 py-2 text-right   text-xs font-medium text-white uppercase tracking-wider">Total</th>
+             <tr>
+              <th scope="col" class="px-4 py-2 text-left    text-xs font-medium text-white uppercase tracking-wider">Description of Work</th>
+              <th scope="col" class="px-4 py-2 text-right   text-xs font-medium text-white uppercase tracking-wider whitespace-nowrap">QTY / HRS</th>
+              <th scope="col" class="px-2 py-2 text-right   text-xs font-medium text-white uppercase tracking-wider">RATE</th>
+              <th scope="col" class="px-2 py-2 text-right   text-xs font-medium text-white uppercase tracking-wider">TOTAL</th>
               <th scope="col" class="px-2 py-2 text-center text-xs font-medium text-white uppercase tracking-wider"></th>
             </tr>
           </thead>
           <tbody class="divide-y divide-stone-200"></tbody>
+          <tfoot class="bg-stone-50">
+            <tr class="border-t-2 border-stone-300">
+              <td colspan="3" class="px-4 py-2 text-right font-bold text-stone-900">Total Amount Due:</td>
+              <td class="px-2 py-2 whitespace-nowrap font-bold text-stone-900 text-right text-lg">
+                <span id="grandTotalCell"></span>
+              </td>
+              <td></td> </tr>
+          </tfoot>
         </table>
       </section>
     </main>
     
     <footer class="bg-stone-50 p-6 border-t border-stone-200">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        
-        <section class="flex flex-col items-start md:items-end md:col-start-2">
-          <div class="w-full max-w-xs bg-stone-100 rounded-lg p-4">
-            <div class="flex justify-between items-baseline">
-              <span class="font-bold text-stone-900 whitespace-nowrap">Total Amount Due:</span>
-              <span id="grandTotalCell" class="whitespace-nowrap font-bold text-stone-900 text-lg"></span>
-            </div>
-          </div>
-        </section>
-        
-        <section class="grid grid-cols-[auto,1fr] items-start gap-x-2 md:row-start-2 md:col-span-2">
+        <section class="grid grid-cols-[auto,1fr] items-start gap-x-2">
           <label for="notes" class="block text-sm font-bold text-stone-700 whitespace-nowrap pt-2 text-right">Notes / Payment Terms:</label>
-          <textarea id="notes" rows="1" class="block w-full h-auto overflow-auto whitespace-pre-wrap rounded-md border-stone-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 px-3 py-2"></textarea>
+          <textarea id="notes" rows="1" class="invisible-input block w-full h-auto overflow-auto whitespace-pre-wrap rounded-md border-stone-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 px-3 py-2"></textarea>
         </section>
-
-      </div>
     </footer>
 
   </div> <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const clientInput = document.getElementById('client');
-      const fromInput = document.getElementById('from');
+      // [MODIFIED] Updated element IDs
+      const clientLine1 = document.getElementById('client-line1');
+      const clientRest = document.getElementById('client-rest');
+      const fromLine1 = document.getElementById('from-line1');
+      const fromRest = document.getElementById('from-rest');
+      
       const invoiceTableBody = document.querySelector('#invoiceTable tbody');
       const grandTotalCell = document.getElementById('grandTotalCell');
       const invoiceNumberInput = document.getElementById('invoiceNumber');
@@ -149,7 +187,8 @@
 
       (function runSelfTests(){
         console.assert(!!invoiceTableBody, 'invoiceTableBody missing');
-        console.assert(!!fromInput && !!clientInput, 'address fields missing');
+        // [MODIFIED] Updated assertion
+        console.assert(!!fromLine1 && !!fromRest && !!clientLine1 && !!clientRest, 'address fields missing');
         console.assert(!!invoiceNumberInput, 'invoiceNumberInput missing');
         console.assert(!!dateIssuedInput, 'dateIssuedInput missing');
         console.assert(!!exportPdfBtn && !!newInvoiceBtn, 'header buttons missing');
@@ -158,7 +197,7 @@
 
       let invoiceData = [];
       let isPreviewMode = false;
-      let activeEditIndex = 0; // --- [NEW] Track the active editing row
+      let activeEditIndex = 0; 
 
       Object.defineProperty(window, 'invoiceData', {
         configurable: true,
@@ -183,6 +222,30 @@
         if (!el) return;
         el.style.height = 'auto';
         el.style.height = el.scrollHeight + 'px';
+      }
+
+      // --- [NEW] Function to split address for new inputs ---
+      function splitAddress(fullAddress) {
+        const lines = (fullAddress || '').split('\n');
+        const firstLine = lines.shift() || '';
+        const rest = lines.join('\n');
+        return [firstLine, rest];
+      }
+
+      // --- [NEW] Function to sync address textareas ---
+      function syncTextareaHeights() {
+          if (!fromRest || !clientRest) return;
+          // Temporarily reset heights to get natural scrollHeight
+          fromRest.style.height = 'auto';
+          clientRest.style.height = 'auto';
+          
+          const fromHeight = fromRest.scrollHeight;
+          const clientHeight = clientRest.scrollHeight;
+          
+          const maxHeight = Math.max(fromHeight, clientHeight, 28); // 28px min height
+          
+          fromRest.style.height = maxHeight + 'px';
+          clientRest.style.height = maxHeight + 'px';
       }
 
       function defaultFirstRow() { return { description: 'Products & Services', quantity: 6.0, unit: 'Hrs', rate: 75.00, total: 6.0 * 75.00 }; }
@@ -223,31 +286,59 @@
 
       const api = { getInvoice: () => fetchJson('/api/invoices'), saveInvoice: (payload) => postJson('/api/invoices', payload) };
 
+      // [MODIFIED] To handle new address fields
       function setGlobalDefaults() {
         if (invoiceNumberInput) invoiceNumberInput.value = localStorage.getItem('lastInvoiceNumber') || '001';
-        fromInput.value = localStorage.getItem('lastFrom') || 'Your Company, Inc.';
-        clientInput.value = localStorage.getItem('lastClient') || 'Customer Name';
+        
+        const [from1, fromRestVal] = splitAddress(localStorage.getItem('lastFrom') || 'Your Company, Inc.');
+        fromLine1.value = from1;
+        fromRest.value = fromRestVal;
+        
+        const [client1, clientRestVal] = splitAddress(localStorage.getItem('lastClient') || 'Customer Name');
+        clientLine1.value = client1;
+        clientRest.value = clientRestVal;
+
         setNotes(localStorage.getItem('lastNotes') || '');
         dateIssuedInput.value = getTodayDateString();
       }
+
+      // [MODIFIED] To handle new address fields
       function ensureDefaults() {
         if (invoiceNumberInput && !invoiceNumberInput.value) invoiceNumberInput.value = localStorage.getItem('lastInvoiceNumber') || '001';
-        if (!fromInput.value)           fromInput.value       = localStorage.getItem('lastFrom') || 'Your Company, Inc.';
-        if (!clientInput.value)         clientInput.value     = localStorage.getItem('lastClient') || 'Customer Name';
+        
+        if (!fromLine1.value && !fromRest.value) {
+            const [from1, fromRestVal] = splitAddress(localStorage.getItem('lastFrom') || 'Your Company, Inc.');
+            fromLine1.value = from1;
+            fromRest.value = fromRestVal;
+        }
+        if (!clientLine1.value && !clientRest.value) {
+            const [client1, clientRestVal] = splitAddress(localStorage.getItem('lastClient') || 'Customer Name');
+            clientLine1.value = client1;
+            clientRest.value = clientRestVal;
+        }
+
         const n = document.getElementById('notes');
         if (n && !n.value)          setNotes(localStorage.getItem('lastNotes') || '');
         if (!dateIssuedInput.value)     dateIssuedInput.value   = getTodayDateString();
         if (!invoiceData || invoiceData.length === 0) invoiceData = [ defaultFirstRow() ];
       }
 
+      // [MODIFIED] To handle new address fields
       async function initializeDashboard() {
         try {
           const savedInvoice = await api.getInvoice();
           if (savedInvoice && typeof savedInvoice === 'object' && (savedInvoice.invoiceNumber || (Array.isArray(savedInvoice.items) && savedInvoice.items.length))) {
             if (invoiceNumberInput) invoiceNumberInput.value = savedInvoice.invoiceNumber || '';
-            fromInput.value = savedInvoice.contractorName || '';
+            
+            const [from1, fromRestVal] = splitAddress(savedInvoice.contractorName);
+            fromLine1.value = from1;
+            fromRest.value = fromRestVal;
+            
+            const [client1, clientRestVal] = splitAddress(savedInvoice.client);
+            clientLine1.value = client1;
+            clientRest.value = clientRestVal;
+
             setNotes(savedInvoice.notes || '');
-            clientInput.value = savedInvoice.client || '';
             invoiceData = Array.isArray(savedInvoice.items) ? savedInvoice.items : [];
           } else {
             setGlobalDefaults();
@@ -263,24 +354,38 @@
             activeEditIndex = 0; // Ensure editor starts at row 0
             renderInvoice(); 
             saveInvoiceData(); 
+            syncTextareaHeights(); // Sync heights on load
           }
           catch (e) { console.error('Finalization error:', e); }
         }
       }
 
       let saveDebounceId; function saveInvoiceData() { if (saveDebounceId) clearTimeout(saveDebounceId); saveDebounceId = setTimeout(_saveInvoiceData, 250); }
+      
+      // [MODIFIED] To handle new address fields
       function _saveInvoiceData() {
         const n = document.getElementById('notes');
         const canonicalNotes = migrateNotes(n ? n.value : '');
         if (n) n.value = canonicalNotes;
+        
+        const contractorName = (fromLine1.value + '\n' + fromRest.value).trim();
+        const clientName = (clientLine1.value + '\n' + clientRest.value).trim();
+        
         try {
           if (invoiceNumberInput) localStorage.setItem('lastInvoiceNumber', invoiceNumberInput.value);
-          localStorage.setItem('lastFrom', fromInput.value);
-          localStorage.setItem('lastClient', clientInput.value);
+          localStorage.setItem('lastFrom', contractorName);
+          localStorage.setItem('lastClient', clientName);
           localStorage.setItem('lastNotes', canonicalNotes);
           localStorage.setItem('lastInvoiceData', JSON.stringify(invoiceData));
         } catch (e) { console.warn('localStorage save failed', e); }
-        const payload = { invoiceNumber: invoiceNumberInput ? invoiceNumberInput.value : '', contractorName: fromInput.value, client: clientInput.value, notes: canonicalNotes, items: invoiceData };
+        
+        const payload = { 
+            invoiceNumber: invoiceNumberInput ? invoiceNumberInput.value : '', 
+            contractorName: contractorName, 
+            client: clientName, 
+            notes: canonicalNotes, 
+            items: invoiceData 
+        };
         api.saveInvoice(payload);
       }
 
@@ -401,10 +506,14 @@
 
           if (index === activeEditIndex) {
             // --- This row IS the active editor ---
+            // [MODIFIED] Added shadow-inner-lg
+            newRow.className += ' shadow-inner-lg';
+
             const tdDesc = document.createElement('td'); tdDesc.className = 'px-4 py-2';
             const descArea = document.createElement('textarea');
             descArea.id = 'edit-desc'; // Generic ID
-            descArea.className = 'w-full rounded-md border-stone-300 border shadow-sm focus:border-teal-500 focus:ring-teal-500 px-2 py-1 resize-none';
+            // [MODIFIED] Added invisible-input class
+            descArea.className = 'invisible-input w-full rounded-md border-stone-300 border shadow-sm focus:border-teal-500 focus:ring-teal-500 px-2 py-1 resize-none';
             descArea.rows = 2; descArea.value = entry.description || '';
             tdDesc.appendChild(descArea);
 
@@ -412,7 +521,8 @@
             const qtyInput = document.createElement('input');
             qtyInput.id = 'edit-qty'; // Generic ID
             qtyInput.setAttribute('inputmode','decimal');
-            qtyInput.className = 'w-12 text-right rounded-md border-stone-300 border shadow-sm focus:border-teal-500 focus:ring-teal-500 px-2 py-1';
+            // [MODIFIED] Added invisible-input class
+            qtyInput.className = 'invisible-input w-12 text-right rounded-md border-stone-300 border shadow-sm focus:border-teal-500 focus:ring-teal-500 px-2 py-1';
             qtyInput.value = qtyDisplay;
             tdQty.appendChild(qtyInput);
 
@@ -420,7 +530,8 @@
             const rateInput = document.createElement('input');
             rateInput.id = 'edit-rate'; // Generic ID
             rateInput.type = 'text'; rateInput.inputMode = 'decimal';
-            rateInput.className = 'w-16 text-right rounded-md border-stone-300 border shadow-sm focus:border-teal-500 focus:ring-teal-500 px-2 py-1';
+            // [MODIFIED] Added invisible-input class
+            rateInput.className = 'invisible-input w-16 text-right rounded-md border-stone-300 border shadow-sm focus:border-teal-500 focus:ring-teal-500 px-2 py-1';
             rateInput.dataset.actual = actualRate.toFixed(2);
             rateInput.value = rateDisplay; // Set display value
             tdRate.appendChild(rateInput);
@@ -435,7 +546,8 @@
             if (index === 0) {
                 // Only show "Add" button if the active editor is row 0
                 const addBtn = document.createElement('button');
-                addBtn.className = 'add-button inline-flex items-center justify-center w-8 h-8 rounded-full bg-teal-600 hover:bg-teal-700 text-white font-extrabold text-lg';
+                // [MODIFIED] Added shadow-lg and border classes
+                addBtn.className = 'add-button inline-flex items-center justify-center w-8 h-8 rounded-full bg-teal-600 hover:bg-teal-700 text-white font-extrabold text-lg shadow-lg border border-stone-200';
                 addBtn.title = 'Add row';
                 addBtn.textContent = '+';
                 tdActions.appendChild(addBtn);
@@ -499,10 +611,9 @@
         });
         
         updateGrandTotal();
-        // autoResizeTextarea(document.getElementById('edit-desc')); // Handled in listener
         autoResizeTextarea(document.getElementById('notes'));
-        autoResizeTextarea(document.getElementById('from'));
-        autoResizeTextarea(document.getElementById('client'));
+        // [MODIFIED] Call syncTextareaHeights instead of autoResize
+        syncTextareaHeights();
       }
 
       // --- [DELETED] attachFirstRowEditors() function was here ---
@@ -577,54 +688,19 @@
       dateIssuedInput.addEventListener('change', saveInvoiceData);
       if (notesInput) notesInput.addEventListener('input', () => { autoResizeTextarea(notesInput); saveInvoiceData(); });
 
-      fromInput.addEventListener('input', () => { autoResizeTextarea(fromInput); saveInvoiceData(); });
-      clientInput.addEventListener('input', () => { autoResizeTextarea(clientInput); saveInvoiceData(); });
+      // [MODIFIED] New event listeners for new fields
+      fromLine1.addEventListener('input', saveInvoiceData);
+      fromRest.addEventListener('input', () => { syncTextareaHeights(); saveInvoiceData(); });
+      clientLine1.addEventListener('input', saveInvoiceData);
+      clientRest.addEventListener('input', () => { syncTextareaHeights(); saveInvoiceData(); });
+      
       if (invoiceNumberInput) invoiceNumberInput.addEventListener('input', saveInvoiceData);
 
-      function drawPdfHeader(doc, currentY, margin, pageWidth, teal_600, stone_700, currentInvoiceNumber, dateIssued, dueDate, a11yEnabled) {
-        doc.setFont('helvetica', 'bold');
-        const black = [0, 0, 0];
-
-        doc.setFontSize(22);
-        const logoText = 'AIIT.';
-        const logoY = currentY - 2;
-        const logoHeight = doc.getTextDimensions(logoText).h;
-        const aiWidth = doc.getTextWidth('AI');
-        const logoWidth = doc.getTextWidth(logoText);
-        doc.setTextColor.apply(null, teal_600); doc.text('AI', margin, logoY);
-        doc.setTextColor.apply(null, black);  doc.text('IT.', margin + aiWidth, logoY);
-        doc.link(margin, logoY - logoHeight, logoWidth, logoHeight, { url: 'https://www.aiit.support' });
-
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(11);
-        doc.setTextColor.apply(null, stone_700);
-        
-        // --- Invoice Number (Bold and Caps) ---
-        doc.setFont('helvetica', 'bold'); // SET to bold
-        const numberText = `INVOICE: #${currentInvoiceNumber}`; 
-        const numberTextWidth = doc.getTextWidth(numberText);
-        doc.text(numberText, pageWidth - margin, currentY, { align: 'right' });
-
-        // --- "INVOICE" Label (REMOVED) ---
-        
-        // --- Date Issued (Bold and Caps) ---
-        doc.setFont('helvetica', 'bold'); // SET to bold
-        doc.setFontSize(11);
-        doc.setTextColor.apply(null, stone_700);
-        doc.text(`DATE ISSUED: ${dateIssued.toUpperCase()}`, pageWidth - margin, currentY + 6, { align: 'right' });
-        
-        // --- A11y text ---
-        if (a11yEnabled) { 
-          doc.setFont('helvetica', 'normal'); // Reset font
-          doc.setFontSize(8); 
-          doc.setTextColor.apply(null, stone_700); 
-          doc.text('AIIT.support — Invoice', margin, currentY + 6); 
-        }
-      }
-
+      // [MODIFIED] To use new address fields
       function drawPdfAddresses(doc, currentY, margin, halfPageWidth, teal_600, stone_700) {
-        const fromVal = document.getElementById('from').value;
-        const clientVal = document.getElementById('client').value;
+        const fromVal = (fromLine1.value + '\n' + fromRest.value).trim();
+        const clientVal = (clientLine1.value + '\n' + clientRest.value).trim();
+
         const fromAllLines = fromVal.split('\n'); const fromFirstLine = fromAllLines.shift() || ''; const fromRestOfLinesText = fromAllLines.join('\n');
         const clientAllLines = clientVal.split('\n'); const clientFirstLine = clientAllLines.shift() || ''; const clientRestOfLinesText = clientAllLines.join('\n');
 
@@ -726,7 +802,7 @@
 
 
         const { jsPDF } = window.jspdf; const doc = new jsPDF();
-        doc.setProperties({ title: `Invoice ${currentInvoiceNumber}`, subject: "Brand wordmark: www.AIIT.support. Promotional sites: AIIT.support and CustomInvoice.AI.", author: (fromInput.value || 'AIIT.support'), keywords: 'invoice, AIIT.support, CustomInvoice.AI, billing', creator: 'AIIT Dashboard' });
+        doc.setProperties({ title: `Invoice ${currentInvoiceNumber}`, subject: "Brand wordmark: www.AIIT.support. Promotional sites: AIIT.support and CustomInvoice.AI.", author: (fromLine1.value || 'AIIT.support'), keywords: 'invoice, AIIT.support, CustomInvoice.AI, billing', creator: 'AIIT Dashboard' });
         const pdfA11y = getPdfA11yEnabled(); const teal_600 = [13, 148, 136]; const stone_700 = [68, 64, 60];
         const pageWidth = doc.internal.pageSize.getWidth(); const margin = 14; const halfPageWidth = pageWidth / 2; let currentY = 22;
 
@@ -820,8 +896,15 @@
 
       function clearInvoice(resetNumber = true) {
         invoiceData = [ defaultFirstRow() ];
-        fromInput.value = localStorage.getItem('lastFrom') || 'Your Company, Inc.';
-        clientInput.value = localStorage.getItem('lastClient') || 'Customer Name';
+        
+        const [from1, fromRestVal] = splitAddress(localStorage.getItem('lastFrom') || 'Your Company, Inc.');
+        fromLine1.value = from1;
+        fromRest.value = fromRestVal;
+        
+        const [client1, clientRestVal] = splitAddress(localStorage.getItem('lastClient') || 'Customer Name');
+        clientLine1.value = client1;
+        clientRest.value = clientRestVal;
+
         setNotes(localStorage.getItem('lastNotes') || '');
         dateIssuedInput.value = getTodayDateString();
         if (resetNumber && invoiceNumberInput) {
