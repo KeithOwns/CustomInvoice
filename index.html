@@ -1,106 +1,788 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - CustomInvoice.AI</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard - AIIT.support</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <style>
+    :root { --font-inter: 'Inter', sans-serif; }
+    body { font-family: var(--font-inter); }
+    .break-words { word-break: break-word; }
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    input[type=number] { -moz-appearance: textfield; }
+    .safe-bottom { padding-bottom: max(0.5rem, env(safe-area-inset-bottom)); }
+    .safe-top { padding-top: max(0.5rem, env(safe-area-inset-top)); }
+    textarea { resize: vertical; }
+    #previewInvoiceBtn.active { background-color: #d1fae5; color: #047857; }
+    
+    /* Hide the default calendar icon */
+    input[type="date"]::-webkit-calendar-picker-indicator {
+      display: none;
+      -webkit-appearance: none;
+    }
+  </style>
 </head>
-<body class="bg-stone-100 p-2 sm:p-3 lg:p-4">
-    <div class="max-w-7xl mx-auto bg-white p-3 sm:p-4 rounded-xl shadow-lg">
-        <header class="grid grid-cols-3 items-center mb-4 border-b border-stone-200 pb-3">
-            <div>
-                <span class="text-2xl font-bold text-stone-800">CustomInvoice<span class="text-teal-600">.AI</span></span>
-            </div>
-            <div></div> <div class="flex flex-col items-end gap-y-1">
-                <div class="flex items-center gap-x-2">
-                    <label for="invoiceNumber" class="block text-sm font-medium text-stone-700">Invoice #:</label>
-                    <input id="invoiceNumber" class="block w-32 rounded-md border-stone-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 px-3 py-1" type="text" maxlength="10">
-                </div>
-                <div class="flex items-center gap-x-2">
-                    <label for="dateIssued" class="block text-sm font-medium text-stone-700">Date Issued:</label>
-                    <input id="dateIssued" class="block w-36 rounded-md border-stone-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 px-3 py-1" type="date">
-                </div>
-            </div>
-        </header>
-        
-        <section class="mb-4 flex gap-4">
-            <div class="w-1/2">
-                <label for="from" class="block text-sm font-bold text-stone-700">FROM:</label>
-                <textarea id="from" class="mt-1 block w-full rounded-md border-stone-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 px-3 py-1 resize-none" rows="2"></textarea>
-            </div>
-             <div class="w-1/2">
-                <label for="client" class="block text-sm font-bold text-stone-700">BILL TO:</label>
-                <textarea id="client" class="mt-1 block w-full rounded-md border-stone-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 px-3 py-1 resize-none" required="" rows="2"></textarea>
-            </div>
-        </section>
+<body class="bg-stone-100 p-4 sm:p-6 lg:p-8 safe-top safe-bottom">
 
-        <section>
-            <form id="timeEntryForm">
-                <table class="min-w-full">
-                    <tbody class="align-top">
-                        <tr>
-                            <td class="pr-2 py-1">
-                                <textarea id="description" class="block w-full rounded-md border-stone-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 px-3 py-1 resize-none" maxlength="94" placeholder="Description of products & services" rows="1" autofocus></textarea>
-                            </td>
-                            <td class="w-48 px-2 py-1">
-                                <div class="flex gap-x-2">
-                                    <select id="unitType" class="block w-full rounded-md border-stone-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 px-3 py-2 text-sm h-full">
-                                        <option value="Hrs">Hours Worked</option>
-                                        <option value="Qty">Quantity</option>
-                                    </select>
-                                    <input id="unitValue" class="block w-full rounded-md border-stone-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 px-3 py-1" required="">
-                                </div>
-                            </td>
-                             <td class="w-32 px-2 py-1">
-                                <input id="rate" class="block w-full rounded-md border-stone-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 px-3 py-1" type="number" placeholder="Rate" required="" step="0.01" min="0">
-                            </td>
-                             <td class="w-32 px-2 py-1">
-                                <button class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-lg transition-colors whitespace-nowrap" type="submit">Add</button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </form>
-            <div class="overflow-x-auto border-t border-stone-200">
-                <table id="invoiceTable" class="min-w-full divide-y divide-stone-200">
-                    <thead class="bg-stone-50">
-                        <tr>
-                            <th class="px-4 py-2 text-left text-xs font-medium text-stone-500 uppercase tracking-wider" scope="col">Description</th>
-                            <th class="w-1 whitespace-nowrap px-4 py-2 text-left text-xs font-medium text-stone-500 uppercase tracking-wider" scope="col">Qty / Hrs</th>
-                            <th class="w-1 whitespace-nowrap px-4 py-2 text-left text-xs font-medium text-stone-500 uppercase tracking-wider" scope="col">Rate</th>
-                            <th class="w-1 whitespace-nowrap px-4 py-2 text-left text-xs font-medium text-stone-500 uppercase tracking-wider" scope="col">Total</th>
-                            <th class="w-1 whitespace-nowrap px-4 py-2 text-left text-xs font-medium text-stone-500 uppercase tracking-wider" scope="col">Delete</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-stone-200"></tbody>
-                    <tfoot class="bg-stone-50">
-                        <tr class="border-t-2 border-stone-300">
-                            <td colspan="3" class="px-4 py-2 text-right font-bold text-stone-900">Total Amount Due</td>
-                            <td id="grandTotalCell" class="px-4 py-2 whitespace-nowrap font-bold text-stone-900"></td>
-                            <td></td> </tr>
-                    </tfoot>
-                </table>
-            </div>
-        </section>
+  <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-2xl overflow-hidden">
 
-        <div class="mt-4 border-t border-stone-200 pt-4">
-            <div>
-                <label for="notes" class="block text-sm font-medium text-stone-700">Notes / Payment Terms:</label>
-                <textarea id="notes" class="mt-1 block w-full rounded-md border-stone-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 px-3 py-1" rows="1"></textarea>
-            </div>
+    <!-- Header Buttons -->
+    <div class="border-b border-stone-200">
+
+      <div class="flex justify-end p-4 gap-3">
+        <button id="newInvoiceBtn" type="button" class="bg-white hover:bg-stone-100 text-stone-700 w-10 h-10 rounded-full transition-colors flex items-center justify-center shadow-lg border border-stone-200" aria-label="New Invoice" title="New Invoice">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v4h4a1 1 0 110 2h-4v4a1 1 0 11-2 0v-4H5a1 1 0 110-2h4V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+        </button>
+        <button id="previewInvoiceBtn" type="button" class="bg-white hover:bg-stone-100 text-stone-700 w-10 h-10 rounded-full transition-colors flex items-center justify-center shadow-lg border border-stone-200" aria-label="Toggle Preview" title="Preview invoice">
+          <svg id="preview-icon-eye" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"> <path d="M10 12.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z"/> <path fill-rule="evenodd" d="M.664 10.59a1.651 1.651 0 010-1.18l.877-.558a.825.825 0 01.996.066l.742.662a.824.824 0 001.076 0l.742-.662a.825.825 0 01.996-.066l.877.558a1.651 1.651 0 010 1.18l-.877.558a.825.825 0 01-.996.066l-.742-.662a.824.824 0 00-1.076 0l-.742.662a.825.825 0 01-.996-.066l-.877-.558zM17.476 9.41a1.651 1.651 0 010 1.18l-.877.558a.825.825 0 01-.996.066l-.742-.662a.824.824 0 00-1.076 0l-.742.662a.825.825 0 01-.996.066l-.877-.558a1.651 1.651 0 010-1.18l.877-.558a.825.825 0 01.996-.066l.742.662a.824.824 0 001.076 0l.742.662a.825.825 0 01.996.066l.877.558z" clip-rule="evenodd"/> </svg>
+          <svg id="preview-icon-eye-slash" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 hidden"> <path fill-rule="evenodd" d="M3.28 2.22a.75.75 0 00-1.06 1.06l14.5 14.5a.75.75 0 101.06-1.06l-1.745-1.745a10.029 10.029 0 003.3-4.38 1.651 1.651 0 000-1.18l-.877-.558a.825.825 0 00-.996.066l-.74.659a.824.824 0 01-1.076 0l-.74-.659a.825.825 0 00-.996-.066l-.877.558a1.651 1.651 0 000 1.18l.877.558a.825.825 0 01.996.066l.484.43a6.938 6.938 0 01-5.132 2.131A6.938 6.938 0 014.1 11.03l-.75-.66a.825.825 0 00-.996-.066l-.877.558a1.651 1.651 0 000 1.18l.877.558a.825.825 0 01.996.066l1.916 1.7-.863.764a.824.824 0 01-1.076 0l-.74-.659a.825.825 0 00-.996-.066l-.877.558a1.651 1.651 0 000 1.18l.877.558a.825.825 0 01.996.066l.74.659a.824.824 0 001.076 0l11.16-9.871L3.28 2.22zM8.38 8.38a2.5 2.5 0 003.24 3.24l-3.24-3.24zM10 12.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z" clip-rule="evenodd"/></svg>
+        </button>
+        <button id="exportPdfBtn" type="button" class="bg-teal-600 hover:bg-teal-700 text-white w-10 h-10 rounded-full transition-colors flex items-center justify-center shadow-lg" aria-label="Export as PDF" title="Export as PDF">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        </button>
+      </div>
+
+      <!-- Logo and Invoice Info -->
+      <div class="flex items-start justify-between px-6 pb-6">
+        <!-- Logo -->
+        <div class="flex-1 pt-2">
+          <a href="https://www.aiit.support" target="_blank" rel="noopener noreferrer">
+            <span class="text-2xl font-bold text-stone-800">
+              <span class="text-teal-600">AI</span>IT.
+            </span>
+          </a>
         </div>
-        <footer class="mt-4 border-t border-stone-200 pt-4 flex justify-end">
-             <div class="flex items-center gap-x-2">
-                <button id="exportPdfBtn" type="button" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">Export as PDF</button>
-                <button id="logout-button" type="button" class="bg-stone-600 hover:bg-stone-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">Logout</button>
+        <!-- Invoice # / Date -->
+        <div class="flex-1 flex justify-end">
+          <div class="grid grid-cols-[auto,1fr] items-center gap-x-2 gap-y-2">
+            <!-- Row 1: Invoice # -->
+            <label for="invoiceNumber" class="text-sm font-bold uppercase text-stone-700 text-right">INVOICE:</label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-stone-500">#</span>
+              <input id="invoiceNumber" type="text" maxlength="8" class="w-28 rounded-md border-stone-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 py-1 pr-3 pl-7" />
             </div>
-        </footer>
+            
+            <!-- Row 2: Date Issued -->
+            <label for="dateIssued" class="text-sm font-bold uppercase text-stone-700 text-right">DATE ISSUED:</label>
+            <div class="relative">
+              <!-- Custom Calendar Icon -->
+              <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-stone-500 cursor-pointer" onclick="document.getElementById('dateIssued').showPicker()">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+                  <path fill-rule="evenodd" d="M5.75 3a.75.75 0 01.75.75v.25h7V3.75a.75.75 0 011.5 0V4h.25A2.75 2.75 0 0118 6.75v8.5A2.75 2.75 0 0115.25 18H4.75A2.75 2.75 0 012 15.25v-8.5A2.75 2.75 0 014.75 4H5v-.25A.75.75 0 015.75 3zM4.5 6.75A1.25 1.25 0 003.25 8v7.25c0 .69.56 1.25 1.25 1.25h10.5c.69 0 1.25-.56 1.25-1.25V8c0-.69-.56-1.25-1.25-1.25H4.5z" clip-rule="evenodd" />
+                </svg>
+              </span>
+              <!-- Date Input -->
+              <input id="dateIssued" type="date" class="w-full text-right rounded-md border-stone-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 py-1 pr-3 pl-10 cursor-pointer" />
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- From / Bill To Addresses -->
+      <div class="p-6 border-t border-stone-200">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="min-w-[12rem] self-start grid grid-cols-[auto,1fr] items-start gap-x-2">
+            <label for="from" class="block text-sm font-bold text-teal-600 whitespace-nowrap pt-1 text-right">FROM:</label>
+            <textarea id="from" rows="3" class="block w-full rounded-md border-stone-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 px-3 py-1"></textarea>
+          </div>
+          <div class="min-w-[12rem] self-start grid grid-cols-[auto,1fr] items-start gap-x-2">
+            <label for="client" class="block text-sm font-bold text-teal-600 whitespace-nowrap pt-1 text-right">BILL TO:</label>
+            <textarea id="client" rows="3" required class="block w-full rounded-md border-stone-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 px-3 py-1"></textarea>
+          </div>
+        </div>
+      </div>
     </div>
     
-    <script src="app.js" defer></script>
+    <!-- Invoice Table -->
+    <div class="p-6">
+      <div class="overflow-x-auto border border-stone-200 rounded-lg">
+        <table id="invoiceTable" class="min-w-full table-fixed divide-y divide-stone-200">
+          <colgroup>
+            <col>
+            <col class="w-[8ch]">
+            <col class="w-[7ch]">
+            <col class="w-[9ch]">
+            <col class="w-[44px]">
+          </colgroup>
+          <thead class="bg-teal-600">
+            <tr>
+              <th scope="col" class="px-4 py-2 text-left    text-xs font-medium text-white uppercase tracking-wider">Description</th>
+              <th scope="col" class="px-4 py-2 text-right   text-xs font-medium text-white uppercase tracking-wider whitespace-nowrap">Qty / Hrs</th>
+              <th scope="col" class="px-2 py-2 text-right   text-xs font-medium text-white uppercase tracking-wider">Rate</th>
+              <th scope="col" class="px-2 py-2 text-right   text-xs font-medium text-white uppercase tracking-wider">Total</th>
+              <th scope="col" class="px-2 py-2 text-center text-xs font-medium text-white uppercase tracking-wider"></th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-stone-200"></tbody>
+        </table>
+      </div>
+    </div>
+    
+    <!-- Footer Section -->
+    <div class="bg-stone-50 p-6 border-t border-stone-200">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- Total Amount Due -->
+        <div class="flex flex-col items-start md:items-end md:col-start-2">
+          <div class="w-full max-w-xs bg-stone-100 rounded-lg p-4">
+            <div class="flex justify-between items-baseline">
+              <span class="font-bold text-stone-900 whitespace-nowrap">Total Amount Due:</span>
+              <span id="grandTotalCell" class="whitespace-nowrap font-bold text-stone-900 text-lg"></span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Notes Block -->
+        <div class="grid grid-cols-[auto,1fr] items-start gap-x-2 md:row-start-1 md:col-start-1">
+          <label for="notes" class="block text-sm font-bold text-stone-700 whitespace-nowrap pt-2 text-right">Notes / Payment Terms:</label>
+          <textarea id="notes" rows="3" class="block w-full h-auto overflow-auto whitespace-pre-wrap rounded-md border-stone-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 px-3 py-2"></textarea>
+        </div>
+
+      </div>
+    </div>
+
+  </div> <!-- end max-w-4xl -->
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const clientInput = document.getElementById('client');
+      const fromInput = document.getElementById('from');
+      const invoiceTableBody = document.querySelector('#invoiceTable tbody');
+      const grandTotalCell = document.getElementById('grandTotalCell');
+      const invoiceNumberInput = document.getElementById('invoiceNumber');
+      const dateIssuedInput = document.getElementById('dateIssued');
+      const notesInput = document.getElementById('notes');
+      const exportPdfBtn = document.getElementById('exportPdfBtn');
+      const newInvoiceBtn = document.getElementById('newInvoiceBtn');
+      const previewInvoiceBtn = document.getElementById('previewInvoiceBtn');
+      const eyeIcon = document.getElementById('preview-icon-eye');
+      const eyeSlashIcon = document.getElementById('preview-icon-eye-slash');
+
+      (function runSelfTests(){
+        console.assert(!!invoiceTableBody, 'invoiceTableBody missing');
+        console.assert(!!fromInput && !!clientInput, 'address fields missing');
+        console.assert(!!invoiceNumberInput, 'invoiceNumberInput missing');
+        console.assert(!!dateIssuedInput, 'dateIssuedInput missing');
+        console.assert(!!exportPdfBtn && !!newInvoiceBtn, 'header buttons missing');
+        console.assert(!!previewInvoiceBtn, 'preview button missing');
+      })();
+
+      let invoiceData = [];
+      let isPreviewMode = false;
+
+      Object.defineProperty(window, 'invoiceData', {
+        configurable: true,
+        get: () => invoiceData,
+        set: v => { invoiceData = Array.isArray(v) ? v : []; renderInvoice(); }
+      });
+
+      function formatCurrency(amount) {
+        const num = Number.isFinite(Number(amount)) ? Number(amount) : 0;
+        return num.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      }
+
+      function getTodayDateString() {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      }
+
+      function autoResizeTextarea(el) {
+        if (!el) return;
+        el.style.height = 'auto';
+        el.style.height = el.scrollHeight + 'px';
+      }
+
+      function defaultFirstRow() { return { description: 'Products & Services', quantity: 6.0, unit: 'Hrs', rate: 75.00, total: 6.0 * 75.00 }; }
+
+      const DEFAULT_NOTES = 'Thank you for your business!';
+      function migrateNotes(val) {
+        const s = String(val || '').trim();
+        const lower = s.toLowerCase();
+        if (!s) return DEFAULT_NOTES;
+        if (lower === 'payment is due within 15 days.' || lower === 'payment is due within 15 days') return DEFAULT_NOTES;
+        return s;
+      }
+      function setNotes(value) {
+        const n = document.getElementById('notes');
+        if (n) n.value = migrateNotes(value);
+      }
+
+      const TIMEOUT_MS = 4000;
+      function withTimeout(promise, ms = TIMEOUT_MS) {
+        return Promise.race([
+          promise,
+          new Promise((_, rej) => setTimeout(() => rej(new Error('Request timeout')), ms))
+        ]);
+      }
+      async function fetchJson(url, options) {
+        try {
+          const res = await withTimeout(fetch(url, options));
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const ct = res.headers.get('content-type') || '';
+          if (!ct.includes('application/json')) throw new Error('Invalid content-type');
+          return await res.json();
+        } catch (e) { console.warn('fetchJson failed:', e?.message || e); return null; }
+      }
+      async function postJson(url, body) {
+        try { await withTimeout(fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })); }
+        catch (e) { console.warn('postJson failed:', e?.message || e); }
+      }
+
+      const api = { getInvoice: () => fetchJson('/api/invoices'), saveInvoice: (payload) => postJson('/api/invoices', payload) };
+
+      function setGlobalDefaults() {
+        if (invoiceNumberInput) invoiceNumberInput.value = localStorage.getItem('lastInvoiceNumber') || '001';
+        fromInput.value = localStorage.getItem('lastFrom') || 'Your Company, Inc.';
+        clientInput.value = localStorage.getItem('lastClient') || 'Customer Name';
+        setNotes(localStorage.getItem('lastNotes') || '');
+        dateIssuedInput.value = getTodayDateString();
+      }
+      function ensureDefaults() {
+        if (invoiceNumberInput && !invoiceNumberInput.value) invoiceNumberInput.value = localStorage.getItem('lastInvoiceNumber') || '001';
+        if (!fromInput.value)           fromInput.value       = localStorage.getItem('lastFrom') || 'Your Company, Inc.';
+        if (!clientInput.value)         clientInput.value     = localStorage.getItem('lastClient') || 'Customer Name';
+        const n = document.getElementById('notes');
+        if (n && !n.value)          setNotes(localStorage.getItem('lastNotes') || '');
+        if (!dateIssuedInput.value)     dateIssuedInput.value   = getTodayDateString();
+        if (!invoiceData || invoiceData.length === 0) invoiceData = [ defaultFirstRow() ];
+      }
+
+      async function initializeDashboard() {
+        try {
+          const savedInvoice = await api.getInvoice();
+          if (savedInvoice && typeof savedInvoice === 'object' && (savedInvoice.invoiceNumber || (Array.isArray(savedInvoice.items) && savedInvoice.items.length))) {
+            if (invoiceNumberInput) invoiceNumberInput.value = savedInvoice.invoiceNumber || '';
+            fromInput.value = savedInvoice.contractorName || '';
+            setNotes(savedInvoice.notes || '');
+            clientInput.value = savedInvoice.client || '';
+            invoiceData = Array.isArray(savedInvoice.items) ? savedInvoice.items : [];
+          } else {
+            setGlobalDefaults();
+            try { invoiceData = JSON.parse(localStorage.getItem('lastInvoiceData') || '[]'); } catch { invoiceData = []; }
+          }
+        } catch (error) {
+          console.error('initializeDashboard hard failure:', error);
+          setGlobalDefaults();
+          try { invoiceData = JSON.parse(localStorage.getItem('lastInvoiceData') || '[]'); } catch { invoiceData = []; }
+        } finally {
+          try { ensureDefaults(); renderInvoice(); saveInvoiceData(); }
+          catch (e) { console.error('Finalization error:', e); }
+        }
+      }
+
+      let saveDebounceId; function saveInvoiceData() { if (saveDebounceId) clearTimeout(saveDebounceId); saveDebounceId = setTimeout(_saveInvoiceData, 250); }
+      function _saveInvoiceData() {
+        const n = document.getElementById('notes');
+        const canonicalNotes = migrateNotes(n ? n.value : '');
+        if (n) n.value = canonicalNotes;
+        try {
+          if (invoiceNumberInput) localStorage.setItem('lastInvoiceNumber', invoiceNumberInput.value);
+          localStorage.setItem('lastFrom', fromInput.value);
+          localStorage.setItem('lastClient', clientInput.value);
+          localStorage.setItem('lastNotes', canonicalNotes);
+          localStorage.setItem('lastInvoiceData', JSON.stringify(invoiceData));
+        } catch (e) { console.warn('localStorage save failed', e); }
+        const payload = { invoiceNumber: invoiceNumberInput ? invoiceNumberInput.value : '', contractorName: fromInput.value, client: clientInput.value, notes: canonicalNotes, items: invoiceData };
+        api.saveInvoice(payload);
+      }
+
+      function updateGrandTotal() {
+        const grandTotal = invoiceData.reduce((s, it) => s + (Number(it.total) || 0), 0);
+        const formatted = formatCurrency(grandTotal);
+        grandTotalCell.textContent = isPreviewMode ? formatted : '***';
+        grandTotalCell.setAttribute('data-actual', formatted);
+      }
+
+      function cloneEntry(e) { return { description: e.description, quantity: e.quantity, unit: e.unit, rate: e.rate, total: e.total }; }
+      function parseTimeToDecimal(t) { if (!t) return 0; if (!String(t).includes(':')) { const n = parseFloat(t); return Number.isFinite(n) ? n : 0; } const [h,m]=String(t).split(':'); return (parseInt(h,10)||0)+((parseInt(m,10)||0)/60); }
+      function tdText(cls, text) { const td=document.createElement('td'); td.className=cls; td.textContent=text; return td; }
+      function parseQtyInput(val, unit) { return unit === 'Hrs' ? parseTimeToDecimal(val) : (parseInt(val, 10) || 0); }
+      
+      function commitRateFromInput() {
+        const rateEl = document.getElementById('edit-rate-0');
+        if (!rateEl) return;
+        const displayValue = isPreviewMode ? formatCurrency(parseFloat(rateEl.dataset.actual || '0') || 0) : '**';
+        if (rateEl.value !== displayValue) {
+          const raw = (rateEl.value || '').replace(/[^0-9.]/g, '');
+          const numeric = parseFloat(raw);
+          const clean = Number.isFinite(numeric) ? numeric : 0;
+          rateEl.dataset.actual = clean.toFixed(2);
+        }
+        rateEl.value = isPreviewMode ? formatCurrency(parseFloat(rateEl.dataset.actual || '0') || 0) : '**';
+      }
+
+      function renderInvoice() {
+        invoiceTableBody.innerHTML = '';
+        invoiceData.forEach((entry, index) => {
+          const newRow = document.createElement('tr');
+          newRow.className = (index % 2 !== 0) ? 'bg-stone-50' : 'bg-white';
+
+          const qtyDisplay = entry.unit === 'Hrs' ? (Number(entry.quantity) || 0).toFixed(2) : String(parseInt(entry.quantity, 10) || 0);
+          const actualRate = (Number(entry.rate) || 0);
+          const actualTotal = (Number(entry.total) || 0);
+
+          const rateDisplay = isPreviewMode ? formatCurrency(actualRate) : '**';
+          const totalDisplay = isPreviewMode ? formatCurrency(actualTotal) : '**';
+
+          if (index === 0) {
+            const tdDesc = document.createElement('td'); tdDesc.className = 'px-4 py-2';
+            const descArea = document.createElement('textarea'); descArea.id = 'edit-desc-0'; descArea.className = 'w-full rounded-md border-stone-300 border shadow-sm focus:border-teal-500 focus:ring-teal-500 px-2 py-1 resize-none'; descArea.rows = 2; descArea.value = entry.description || ''; tdDesc.appendChild(descArea);
+
+            const tdQty = document.createElement('td'); tdQty.className = 'px-4 py-2 whitespace-nowrap text-right';
+            const qtyInput = document.createElement('input'); qtyInput.id = 'edit-qty-0'; qtyInput.setAttribute('inputmode','decimal'); qtyInput.className = 'w-12 text-right rounded-md border-stone-300 border shadow-sm focus:border-teal-500 focus:ring-teal-500 px-2 py-1'; qtyInput.value = qtyDisplay; tdQty.appendChild(qtyInput);
+
+            const tdRate = document.createElement('td'); tdRate.className = 'px-2 py-2 whitespace-nowrap text-right';
+            const rateInput = document.createElement('input'); rateInput.id = 'edit-rate-0'; rateInput.type = 'text'; rateInput.inputMode = 'decimal'; rateInput.className = 'w-16 text-right rounded-md border-stone-300 border shadow-sm focus:border-teal-500 focus:ring-teal-500 px-2 py-1';
+            rateInput.dataset.actual = actualRate.toFixed(2);
+             if (document.activeElement === rateInput) {
+                 // Keep the current raw value during focus
+             } else {
+                 rateInput.value = rateDisplay;
+             }
+            tdRate.appendChild(rateInput);
+
+            const tdTotal = document.createElement('td'); tdTotal.className = 'px-2 py-2 whitespace-nowrap text-right';
+            const totalSpan = document.createElement('span'); totalSpan.id = 'edit-total-0';
+            totalSpan.textContent = totalDisplay;
+            tdTotal.appendChild(totalSpan);
+
+            const tdActions = document.createElement('td'); tdActions.className = 'px-2 py-2 whitespace-nowrap text-center';
+            const addBtn = document.createElement('button'); addBtn.className = 'add-button inline-flex items-center justify-center w-8 h-8 rounded-full bg-teal-600 hover:bg-teal-700 text-white font-extrabold text-lg'; addBtn.title = 'Add row'; addBtn.dataset.index = String(index); addBtn.textContent = '+'; tdActions.appendChild(addBtn);
+
+            newRow.appendChild(tdDesc);
+            newRow.appendChild(tdQty);
+            newRow.appendChild(tdRate);
+            newRow.appendChild(tdTotal);
+            newRow.appendChild(tdActions);
+            requestAnimationFrame(() => autoResizeTextarea(descArea));
+          } else {
+            newRow.appendChild(tdText('px-4 py-2 text-sm text-stone-900 break-words', String(entry.description || '')));
+            newRow.appendChild(tdText('px-4 py-2 whitespace-nowrap text-sm text-stone-500 text-right', qtyDisplay));
+            newRow.appendChild(tdText('px-2 py-2 whitespace-nowrap text-sm text-stone-500 text-right', rateDisplay));
+            newRow.appendChild(tdText('px-2 py-2 whitespace-nowrap text-sm text-stone-500 text-right', totalDisplay));
+            newRow.appendChild(tdText('px-2 py-2', ''));
+          }
+          invoiceTableBody.appendChild(newRow);
+        });
+        updateGrandTotal();
+        attachFirstRowEditors();
+        autoResizeTextarea(document.getElementById('notes'));
+        autoResizeTextarea(document.getElementById('from'));
+        autoResizeTextarea(document.getElementById('client'));
+      }
+
+      function attachFirstRowEditors() {
+        if (!invoiceData.length) return;
+        const row = invoiceData[0];
+        const descEl = document.getElementById('edit-desc-0');
+        const qtyEl  = document.getElementById('edit-qty-0');
+        const rateEl = document.getElementById('edit-rate-0');
+        const totalEl = document.getElementById('edit-total-0');
+        if (!descEl || !qtyEl || !rateEl || !totalEl) return;
+
+        rateEl.addEventListener('focus', () => {
+            const actual = rateEl.dataset.actual || '0.00';
+            rateEl.value = actual;
+            requestAnimationFrame(() => {
+                try { rateEl.select(); } catch {}
+            });
+        });
+        rateEl.addEventListener('blur', () => {
+            commitRateFromInput();
+            recalcAndPersist();
+        });
+        rateEl.addEventListener('input', () => {
+            const raw = (rateEl.value || '').replace(/[^0-9.]/g, '');
+            const n = parseFloat(raw);
+            row.rate = Number.isFinite(n) ? n : 0;
+            row.total = (row.quantity || 0) * (row.rate || 0);
+            totalEl.textContent = isPreviewMode ? formatCurrency(row.total) : '**';
+            updateGrandTotal();
+        });
+
+        function recalcAndPersist() {
+          row.description = descEl.value;
+          row.quantity = parseQtyInput(qtyEl.value, row.unit);
+          row.rate = parseFloat(rateEl.dataset.actual || '0') || 0;
+          row.total = row.quantity * row.rate;
+          totalEl.textContent = isPreviewMode ? formatCurrency(row.total) : '**';
+          updateGrandTotal();
+          saveInvoiceData();
+        }
+
+        descEl.addEventListener('input', () => { autoResizeTextarea(descEl); recalcAndPersist(); });
+        qtyEl.addEventListener('input', recalcAndPersist);
+      }
+
+      // --- ADD ROW LOGIC ---
+        invoiceTableBody.addEventListener('click', function(event) {
+        const addBtn = event.target.closest('.add-button');
+
+        if (addBtn) {
+          const index = parseInt(addBtn.dataset.index, 10); // Should always be 0
+
+          if (index === 0 && invoiceData.length > 0) {
+            const descEl = document.getElementById('edit-desc-0');
+            const qtyEl  = document.getElementById('edit-qty-0');
+            const rateEl = document.getElementById('edit-rate-0');
+
+            // --- Capture data from the current first row ---
+            if (rateEl.value !== '**' && !isPreviewMode) {
+                commitRateFromInput(); 
+            } else if (rateEl.value !== formatCurrency(parseFloat(rateEl.dataset.actual || '0')) && isPreviewMode) {
+                const raw = (rateEl.value || '').replace(/[^0-9.]/g, '');
+                const numeric = parseFloat(raw);
+                const clean = Number.isFinite(numeric) ? numeric : 0;
+                rateEl.dataset.actual = clean.toFixed(2); 
+                commitRateFromInput();
+            } else {
+                // If value matches display ('**' or formatted currency), dataset.actual is already correct
+            }
+
+            const desc = (descEl?.value || '').trim() || 'Products & Services';
+            const qtyVal = (qtyEl?.value || '').trim();
+            const qty = parseQtyInput(qtyVal, invoiceData[0].unit); // Use unit from existing row
+            const rate = parseFloat(rateEl?.dataset.actual || '0') || 0; // Use dataset.actual
+            const total = qty * rate;
+
+            const entryToAdd = { description: desc, quantity: qty, unit: 'Hrs', rate, total };
+
+            invoiceData.splice(1, 0, entryToAdd); // Insert the captured data as the second row
+            invoiceData[0] = defaultFirstRow(); // Reset the first row to defaults
+
+            renderInvoice(); // Re-render the table with the new row and reset first row
+            saveInvoiceData(); // Save the updated array
+
+            const firstDesc = document.getElementById('edit-desc-0');
+            if (firstDesc) {
+                requestAnimationFrame(() => firstDesc.focus());
+             }
+          }
+          return;
+        }
+      });
+      // --- END ADD ROW LOGIC ---
+
+
+      function getPdfA11yEnabled(){ const v = localStorage.getItem('pdfA11yEnabled'); return v === null ? false : v === 'true'; }
+      function setPdfA11yEnabled(val){ try { localStorage.setItem('pdfA11yEnabled', String(!!val)); } catch {} }
+
+      dateIssuedInput.addEventListener('change', saveInvoiceData);
+      if (notesInput) notesInput.addEventListener('input', () => { autoResizeTextarea(notesInput); saveInvoiceData(); });
+
+      fromInput.addEventListener('input', () => { autoResizeTextarea(fromInput); saveInvoiceData(); });
+      clientInput.addEventListener('input', () => { autoResizeTextarea(clientInput); saveInvoiceData(); });
+      if (invoiceNumberInput) invoiceNumberInput.addEventListener('input', saveInvoiceData);
+
+      function drawPdfHeader(doc, currentY, margin, pageWidth, teal_600, stone_700, currentInvoiceNumber, dateIssued, dueDate, a11yEnabled) {
+        doc.setFont('helvetica', 'bold');
+        const black = [0, 0, 0];
+
+        doc.setFontSize(22);
+        const logoText = 'AIIT.';
+        const logoY = currentY - 2;
+        const logoHeight = doc.getTextDimensions(logoText).h;
+        const aiWidth = doc.getTextWidth('AI');
+        const logoWidth = doc.getTextWidth(logoText);
+        doc.setTextColor.apply(null, teal_600); doc.text('AI', margin, logoY);
+        doc.setTextColor.apply(null, black);  doc.text('IT.', margin + aiWidth, logoY);
+        doc.link(margin, logoY - logoHeight, logoWidth, logoHeight, { url: 'https://www.aiit.support' });
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(11);
+        doc.setTextColor.apply(null, stone_700);
+        
+        // --- Invoice Number (Bold and Caps) ---
+        doc.setFont('helvetica', 'bold'); // SET to bold
+        const numberText = `INVOICE: #${currentInvoiceNumber}`; 
+        const numberTextWidth = doc.getTextWidth(numberText);
+        doc.text(numberText, pageWidth - margin, currentY, { align: 'right' });
+
+        // --- "INVOICE" Label (REMOVED) ---
+        
+        // --- Date Issued (Bold and Caps) ---
+        doc.setFont('helvetica', 'bold'); // SET to bold
+        doc.setFontSize(11);
+        doc.setTextColor.apply(null, stone_700);
+        doc.text(`DATE ISSUED: ${dateIssued.toUpperCase()}`, pageWidth - margin, currentY + 6, { align: 'right' });
+        
+        // --- A11y text ---
+        if (a11yEnabled) { 
+          doc.setFont('helvetica', 'normal'); // Reset font
+          doc.setFontSize(8); 
+          doc.setTextColor.apply(null, stone_700); 
+          doc.text('AIIT.support — Invoice', margin, currentY + 6); 
+        }
+      }
+
+      function drawPdfAddresses(doc, currentY, margin, halfPageWidth, teal_600, stone_700) {
+        const fromVal = document.getElementById('from').value;
+        const clientVal = document.getElementById('client').value;
+        const fromAllLines = fromVal.split('\n'); const fromFirstLine = fromAllLines.shift() || ''; const fromRestOfLinesText = fromAllLines.join('\n');
+        const clientAllLines = clientVal.split('\n'); const clientFirstLine = clientAllLines.shift() || ''; const clientRestOfLinesText = clientAllLines.join('\n');
+
+        const labelGap = 2; // Increased gap to 2 spaces
+        const columnPadding = 5;
+        const addressGap = 1.5;
+        const pageWidth = doc.internal.pageSize.getWidth();
+
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(12);
+
+        // --- FROM ---
+        const fromLabelText = 'FROM:';
+        const fromLabelWidth = doc.getTextWidth(fromLabelText);
+        // Align label to the right of its "column" (margin to halfPageWidth - columnPadding)
+        const fromLabelX = halfPageWidth - columnPadding - fromLabelWidth; // Right-align label
+        const fromDataX = halfPageWidth - columnPadding; // Start data right after
+        const fromColumnWidth = halfPageWidth - fromDataX; // This is wrong, let's rethink
+
+        // Simple grid: Label column and Data column
+        const fromLabelColWidth = doc.getTextWidth('BILL TO:') + labelGap; // Use widest label for alignment
+        const fromLabelColX = margin;
+        const fromDataColX = fromLabelColX + fromLabelColWidth;
+        const fromDataColWidth = (halfPageWidth - margin) - fromLabelColWidth - columnPadding;
+
+        doc.setTextColor.apply(null, teal_600);
+        doc.text(fromLabelText, fromDataColX - labelGap, currentY, { align: 'right' }); // Align right, ending at data start
+
+        let fromBlockY = currentY;
+        doc.setFontSize(11); doc.setTextColor.apply(null, stone_700);
+        doc.setFont('helvetica', 'bold');
+        const splitFirstFrom = doc.splitTextToSize(fromFirstLine, fromDataColWidth);
+        doc.text(splitFirstFrom, fromDataColX, fromBlockY, { align: 'left' });
+
+        let fromHeight = doc.getTextDimensions(splitFirstFrom).h;
+        fromBlockY += fromHeight;
+        doc.setFont('helvetica', 'normal');
+        if (fromRestOfLinesText) {
+          fromBlockY += addressGap;
+          const splitRestFrom = doc.splitTextToSize(fromRestOfLinesText, fromDataColWidth);
+          doc.text(splitRestFrom, fromDataColX, fromBlockY, { align: 'left' });
+          fromHeight += doc.getTextDimensions(splitRestFrom).h + addressGap;
+        }
+
+        // --- BILL TO ---
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(12);
+        const toLabelText = 'BILL TO:';
+        const toLabelColX = halfPageWidth + columnPadding; // Start second column
+        const toDataColX = toLabelColX + fromLabelColWidth; // Use same width as 'from' label column
+        const toDataColWidth = (pageWidth - margin) - toDataColX;
+
+        doc.setTextColor.apply(null, teal_600);
+        doc.text(toLabelText, toDataColX - labelGap, currentY, { align: 'right' }); // Align right
+
+        let clientBlockY = currentY;
+        doc.setFontSize(11); doc.setTextColor.apply(null, stone_700);
+        doc.setFont('helvetica', 'bold');
+        const splitFirstClient = doc.splitTextToSize(clientFirstLine, toDataColWidth);
+        doc.text(splitFirstClient, toDataColX, clientBlockY, { align: 'left' });
+
+        let clientHeight = doc.getTextDimensions(splitFirstClient).h;
+        clientBlockY += clientHeight;
+        doc.setFont('helvetica', 'normal');
+        if (clientRestOfLinesText) {
+          clientBlockY += addressGap;
+          const splitRestClient = doc.splitTextToSize(clientRestOfLinesText, toDataColWidth);
+          doc.text(splitRestClient, toDataColX, clientBlockY, { align: 'left' });
+          clientHeight += doc.getTextDimensions(splitRestClient).h + addressGap;
+        }
+
+        return Math.max(fromHeight, clientHeight);
+      }
+
+      function drawPdfFooter(doc, pageNumber, pageCount, margin, pageWidth) {
+        doc.setFontSize(9); doc.setTextColor.apply(null, [168, 162, 158]);
+        const footerY = doc.internal.pageSize.height - 10;
+        const textPart1 = '© 2025 '; const textPart2_link = 'www.AIIT.support'; const textPart3 = '. All Rights Reserved.';
+        const textPart1Width = doc.getTextWidth(textPart1); const textPart2Width = doc.getTextWidth(textPart2_link);
+        const linkX = margin + textPart1Width;
+        doc.text(textPart1, margin, footerY); doc.text(textPart2_link, linkX, footerY); doc.text(textPart3, linkX + textPart2Width, footerY);
+        doc.link(linkX, footerY - doc.getFontSize(), textPart2Width, doc.getFontSize(), { url: 'https://www.aiit.support' });
+        doc.text('Page ' + pageNumber + ' of ' + pageCount, pageWidth - margin, footerY, { align: 'right' });
+      }
+
+      function exportToPdf() {
+        if (!Array.isArray(window.invoiceData) || window.invoiceData.length === 0) { 
+          // Use a custom modal later
+          console.warn('Cannot export an empty invoice.'); 
+          return; 
+        }
+
+        const rateEl = document.getElementById('edit-rate-0');
+        if (rateEl && rateEl.value !== '**' && !isPreviewMode) {
+             commitRateFromInput();
+        } else if (rateEl && isPreviewMode) {
+             const raw = (rateEl.value || '').replace(/[^0-9.]/g, '');
+             const numeric = parseFloat(raw);
+             const clean = Number.isFinite(numeric) ? numeric : 0;
+             rateEl.dataset.actual = clean.toFixed(2);
+        }
+
+
+        if (invoiceData.length > 0) {
+            const descEl = document.getElementById('edit-desc-0');
+            const qtyEl  = document.getElementById('edit-qty-0');
+            if (descEl && qtyEl && rateEl) {
+                const qtyVal = (qtyEl?.value || '').trim();
+                invoiceData[0].description = descEl.value;
+                invoiceData[0].quantity = parseQtyInput(qtyVal, invoiceData[0].unit);
+                invoiceData[0].rate = parseFloat(rateEl.dataset.actual || '0') || 0;
+                invoiceData[0].total = invoiceData[0].quantity * invoiceData[0].rate;
+            }
+        }
+
+        const currentInvoiceNumber = invoiceNumberInput ? (invoiceNumberInput.value || '000') : '000';
+        const theDate = dateIssuedInput.value || getTodayDateString();
+        // Use T00:00:00 to avoid timezone issues
+        const dateObj = new Date(theDate + 'T00:00:00');
+        const dateIssuedDisp = dateObj.toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' });
+
+
+        const { jsPDF } = window.jspdf; const doc = new jsPDF();
+        doc.setProperties({ title: `Invoice ${currentInvoiceNumber}`, subject: "Brand wordmark: www.AIIT.support. Promotional sites: AIIT.support and CustomInvoice.AI.", author: (fromInput.value || 'AIIT.support'), keywords: 'invoice, AIIT.support, CustomInvoice.AI, billing', creator: 'AIIT Dashboard' });
+        const pdfA11y = getPdfA11yEnabled(); const teal_600 = [13, 148, 136]; const stone_700 = [68, 64, 60];
+        const pageWidth = doc.internal.pageSize.getWidth(); const margin = 14; const halfPageWidth = pageWidth / 2; let currentY = 22;
+
+        drawPdfHeader(doc, currentY, margin, pageWidth, teal_600, stone_700, currentInvoiceNumber, dateIssuedDisp, undefined, pdfA11y);
+
+        currentY += 18;
+        const addressBlockHeight = drawPdfAddresses(doc, currentY, margin, halfPageWidth, teal_600, stone_700);
+        let tableStartY = currentY + addressBlockHeight + 10;
+
+        const dataRows = (window.invoiceData || []);
+        const rows = dataRows.map(entry => {
+            const qtyDisplay = entry.unit === 'Hrs' ? (Number(entry.quantity) || 0).toFixed(2) : (parseInt(entry.quantity, 10) || 0);
+            return [ String(entry.description || ''), qtyDisplay, formatCurrency(entry.rate), formatCurrency(entry.total) ];
+        });
+        const grandTotal = dataRows.reduce((sum, item) => sum + (Number(item.total) || 0), 0);
+
+        if (pdfA11y) { doc.setTextColor(120, 113, 108); doc.setFontSize(8); doc.text('Table: Invoice line items — Description; Qty/Hrs; Rate; Total.', margin, tableStartY - 2); }
+        doc.autoTable({
+          head: [['Description of Work', 'QTY / HRS', 'RATE', 'TOTAL']],
+          body: rows,
+          startY: tableStartY,
+          headStyles: { fillColor: teal_600, textColor: [255, 255, 255] },
+          foot: [[{ content: 'Total Amount Due:', colSpan: 3, styles: { halign: 'right', fontStyle: 'bold' } }, { content: formatCurrency(grandTotal), styles: { halign: 'right', fontStyle: 'bold' } }]],
+          footStyles: { fillColor: [245, 245, 244], textColor: [28, 25, 23] },
+          columnStyles: { 0: { halign: 'left',  cellWidth: 'auto' }, 1: { halign: 'right', cellWidth: 25 }, 2: { halign: 'right', cellWidth: 25 }, 3: { halign: 'right', cellWidth: 30 } },
+          didParseCell(data) { if (data.section === 'head') { data.cell.styles.halign = data.column.index === 0 ? 'left' : 'right'; } },
+          didDrawCell: function(data) { if (!pdfA11y) return; if (data.section === 'head') return; if (data.section === 'body' && data.column.index === 0) { try { const r = rows[data.row.index] || []; const summary = `Row ${data.row.index + 1}: ${r[0]}; Qty ${r[1]}; Rate ${r[2]}; Total ${r[3]}.`; doc.setTextColor(120,113,108); doc.setFontSize(6); doc.text(summary, data.cell.x + 0.2, data.cell.y + data.cell.height - 0.6); } catch (_) {} } }
+        });
+
+        const finalTableY = doc.lastAutoTable.finalY || tableStartY + (doc.lastAutoTable.height || 0);
+        let notesY = finalTableY + 10;
+        const notesValue = notesInput ? notesInput.value.trim() : '';
+        const bottomMargin = 20;
+        const pageHeight = doc.internal.pageSize.height;
+        const labelGap = 2;
+
+        if (notesValue) {
+            const notesLabelText = "Notes / Payment Terms:";
+            doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.setTextColor.apply(null, stone_700);
+            const notesLabelWidth = doc.getTextWidth(notesLabelText);
+            const notesDataX = margin + notesLabelWidth + labelGap;
+            const notesDataWidth = pageWidth - margin - notesDataX;
+            
+            const notesLines = doc.splitTextToSize(notesValue, notesDataWidth);
+            const notesHeight = doc.getTextDimensions(notesLines).h + 5; // +5 for label height approx
+
+            if (notesY + notesHeight > pageHeight - bottomMargin) {
+                doc.addPage();
+                notesY = margin + 10;
+            }
+            
+            // Draw label
+            doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.setTextColor.apply(null, stone_700);
+            doc.text(notesLabelText, margin, notesY);
+
+            // Draw notes text
+            doc.setFont('helvetica', 'normal'); doc.setFontSize(10);
+            doc.text(notesLines, notesDataX, notesY);
+        }
+
+        const pageCount = doc.internal.getNumberOfPages();
+        for (let i = 1; i <= pageCount; i++) {
+            doc.setPage(i);
+            drawPdfFooter(doc, i, pageCount, margin, pageWidth);
+        }
+
+        doc.save(`invoice-${currentInvoiceNumber}.pdf`);
+
+        if (invoiceNumberInput) {
+          const currentInvoiceStr = invoiceNumberInput.value; const match = currentInvoiceStr.match(/(\d+)$/);
+          if (match) {
+              const numberPart = match[1];
+              const prefix = currentInvoiceStr.slice(0, -numberPart.length);
+              const newNumberPart = String(parseInt(numberPart, 10) + 1).padStart(numberPart.length, '0');
+              invoiceNumberInput.value = prefix + newNumberPart;
+              clearInvoice(false); // false = don't reset number
+              saveInvoiceData();
+            } else {
+              clearInvoice(true);
+              saveInvoiceData();
+            }
+        } else {
+            clearInvoice(true);
+            saveInvoiceData();
+        }
+      }
+
+      function clearInvoice(resetNumber = true) {
+        invoiceData = [ defaultFirstRow() ];
+        fromInput.value = localStorage.getItem('lastFrom') || 'Your Company, Inc.';
+        clientInput.value = localStorage.getItem('lastClient') || 'Customer Name';
+        setNotes(localStorage.getItem('lastNotes') || '');
+        dateIssuedInput.value = getTodayDateString();
+        if (resetNumber && invoiceNumberInput) {
+          invoiceNumberInput.value = localStorage.getItem('lastInvoiceNumber') || '001';
+        }
+        if (isPreviewMode) {
+          isPreviewMode = false;
+          previewInvoiceBtn.classList.remove('active');
+          eyeIcon.classList.remove('hidden');
+          eyeSlashIcon.classList.add('hidden');
+        }
+        renderInvoice();
+      }
+
+      if (exportPdfBtn) exportPdfBtn.addEventListener('click', exportToPdf);
+      if (newInvoiceBtn) newInvoiceBtn.addEventListener('click', () => clearInvoice(true));
+
+      if (previewInvoiceBtn) {
+          previewInvoiceBtn.addEventListener('click', () => {
+              isPreviewMode = !isPreviewMode; // Toggle the state
+
+              if (isPreviewMode) {
+                  previewInvoiceBtn.classList.add('active');
+                  eyeIcon.classList.add('hidden');
+                  eyeSlashIcon.classList.remove('hidden');
+              } else {
+                  previewInvoiceBtn.classList.remove('active');
+                  eyeIcon.classList.remove('hidden');
+                  eyeSlashIcon.classList.add('hidden');
+                  const rateEl = document.getElementById('edit-rate-0');
+                  if (rateEl && rateEl === document.activeElement && rateEl.value !== '**') {
+                       commitRateFromInput(); // Sets display back to '**'
+                  } else if (rateEl && rateEl.value !== '**') {
+                       commitRateFromInput();
+                  }
+              }
+              renderInvoice(); // Re-render the invoice table
+          });
+      }
+
+      initializeDashboard();
+
+    });
+  </script>
+
 </body>
 </html>
+
