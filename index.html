@@ -40,13 +40,15 @@
     }
     /* Special handling for the invoice number's hash */
     #invoiceNumber.invisible-input {
-      padding-left: 1.5rem !important; /* (Increased from 1.25rem) Keep padding for the '#' */
+      padding-left: 1.25rem !important; /* Keep padding for the '#' */
     }
-    /* [REMOVED] Special handling for the date input's icon was here */
+    /* Special handling for the date input's icon */
+    #dateIssued.invisible-input {
+        padding-left: 2.5rem !important; /* Keep padding for the icon */
+        padding-right: 0.75rem !important; /* Restore right padding */
+    }
     /* [REMOVED] .address-label rule was here */
     /* --- [END MODIFIED] --- */
-
-    /* [REMOVED] Gemini Styles were here */
 
   </style>
 </head>
@@ -58,16 +60,11 @@
 
       <div class="flex justify-end p-4 gap-3">
         <button id="newInvoiceBtn" type="button" class="bg-white hover:bg-stone-100 text-stone-700 w-10 h-10 rounded-full transition-colors flex items-center justify-center shadow-lg border border-stone-200" aria-label="New Invoice" title="New Invoice">
-          <!-- [MODIFIED] Changed plus color to teal -->
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 text-teal-600"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v4h4a1 1 0 110 2h-4v4a1 1 0 11-2 0v-4H5a1 1 0 110-2h4V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v4h4a1 1 0 110 2h-4v4a1 1 0 11-2 0v-4H5a1 1 0 110-2h4V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
         </button>
-        <button id="previewInvoiceBtn" type="button" class="bg-white hover:bg-stone-100 text-stone-700 w-10 h-10 rounded-full transition-colors flex items-center justify-center shadow-lg border border-stone-200" aria-label="Toggle Preview" title="Show Values" aria-pressed="false">
-          <svg id="preview-icon-eye" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 hidden">
-            <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-            <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.022 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
-          </svg>
-          <!-- [MODIFIED] Changed icon to '***' text -->
-          <span id="preview-icon-masked" class="font-bold text-teal-600 tracking-tighter">***</span>
+        <button id="previewInvoiceBtn" type="button" class="bg-white hover:bg-stone-100 text-stone-700 w-10 h-10 rounded-full transition-colors flex items-center justify-center shadow-lg border border-stone-200" aria-label="Toggle Preview" title="Preview invoice" aria-pressed="false">
+          <svg id="preview-icon-eye" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"> <path d="M10 12.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z"/> <path fill-rule="evenodd" d="M.664 10.59a1.651 1.651 0 010-1.18l.877-.558a.825.825 0 01.996.066l.742.662a.824.824 0 001.076 0l.742-.662a.825.825 0 01.996-.066l.877.558a1.651 1.651 0 010 1.18l-.877.558a.825.825 0 01-.996.066l-.742-.662a.824.824 0 00-1.076 0l-.742.662a.825.825 0 01-.996-.066l-.877-.558zM17.476 9.41a1.651 1.651 0 010 1.18l-.877.558a.825.825 0 01-.996.066l-.742-.662a.824.824 0 00-1.076 0l-.742.662a.825.825 0 01-.996.066l-.877-.558a1.651 1.651 0 010-1.18l.877-.558a.825.825 0 01.996-.066l.742.662a.824.824 0 001.076 0l.742.662a.825.825 0 01.996.066l.877.558z" clip-rule="evenodd"/> </svg>
+          <svg id="preview-icon-eye-slash" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 hidden"> <path fill-rule="evenodd" d="M3.28 2.22a.75.75 0 00-1.06 1.06l14.5 14.5a.75.75 0 101.06-1.06l-1.745-1.745a10.029 10.029 0 003.3-4.38 1.651 1.651 0 000-1.18l-.877-.558a.825.825 0 00-.996.066l-.74.659a.824.824 0 01-1.076 0l-.74-.659a.825.825 0 00-.996-.066l-.877.558a1.651 1.651 0 000 1.18l.877.558a.825.825 0 01.996.066l.484.43a6.938 6.938 0 01-5.132 2.131A6.938 6.938 0 014.1 11.03l-.75-.66a.825.825 0 00-.996-.066l-.877.558a1.651 1.651 0 000 1.18l.877.558a.825.825 0 01.996.066l1.916 1.7-.863.764a.824.824 0 01-1.076 0l-.74-.659a.825.825 0 00-.996-.066l-.877.558a1.651 1.651 0 000 1.18l.877.558a.825.825 0 01.996.066l.74.659a.824.824 0 001.076 0l11.16-9.871L3.28 2.22zM8.38 8.38a2.5 2.5 0 003.24 3.24l-3.24-3.24zM10 12.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z" clip-rule="evenodd"/></svg>
         </button>
         <button id="exportPdfBtn" type="button" class="bg-teal-600 hover:bg-teal-700 text-white w-10 h-10 rounded-full transition-colors flex items-center justify-center shadow-lg border border-stone-200" aria-label="Export as PDF" title="Export as PDF">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
@@ -82,24 +79,32 @@
             </span>
           </a>
         </div>
-        
         <div class="flex-1 flex justify-end">
-          <div class="grid grid-cols-[auto,1fr] items-center gap-y-1 gap-x-0">
+          <div class="flex flex-col items-end gap-y-2">
             
-            <label for="invoiceNumber" class="text-sm font-bold uppercase text-stone-700 text-right">INVOICE:</label>
-            <div class="relative">
-              <span class="absolute inset-y-0 left-0 flex items-center pl-2 text-stone-500">#</span>
-              <input id="invoiceNumber" type="text" maxlength="8" class="invisible-input font-bold w-28 rounded-md border-stone-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 py-0.5 pr-3 pl-5" />
+            <div class="flex items-center gap-x-2">
+              <label for="invoiceNumber" class="text-sm font-bold uppercase text-stone-700 text-right">INVOICE:</label>
+              <div class="relative">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-stone-500">#</span>
+                <input id="invoiceNumber" type="text" maxlength="8" class="invisible-input font-bold w-28 rounded-md border-stone-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 py-1 pr-3 pl-7" />
+              </div>
             </div>
             
-            <label for="dateIssued" class="text-sm font-bold uppercase text-stone-700 text-right whitespace-nowrap">DATE ISSUED:</label>
-            <div class="relative">
-              <input id="dateIssued" type="date" class="invisible-input font-bold uppercase w-full rounded-md border-stone-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 py-0.5 pl-2 pr-3 cursor-pointer" />
+            <div class="flex items-center gap-x-2">
+              <label for="dateIssued" class="text-sm font-bold uppercase text-stone-700 text-right whitespace-nowrap">DATE ISSUED:</label>
+              <div class="relative">
+                <button type="button" class="absolute inset-y-0 left-0 flex items-center pl-3 text-stone-500 cursor-pointer" onclick="document.getElementById('dateIssued').showPicker()" aria-label="Open calendar">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+                    <path fill-rule="evenodd" d="M5.75 3a.75.75 0 01.75.75v.25h7V3.75a.75.75 0 011.5 0V4h.25A2.75 2.75 0 0118 6.75v8.5A2.75 2.75 0 0115.25 18H4.75A2.75 2.75 0 012 15.25v-8.5A2.75 2.75 0 014.75 4H5v-.25A.75.75 0 015.75 3zM4.5 6.75A1.25 1.25 0 003.25 8v7.25c0 .69.56 1.25 1.25 1.25h10.5c.69 0 1.25-.56 1.25-1.25V8c0-.69-.56-1.25-1.25-1.25H4.5z" clip-rule="evenodd" />
+                  </svg>
+                </button>
+                <input id="dateIssued" type="date" class="invisible-input font-bold uppercase w-full text-right rounded-md border-stone-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 py-1 pr-3 pl-10 cursor-pointer" />
+              </div>
             </div>
 
           </div>
         </div>
-        </div>
+      </div>
       
       <div class="p-6 border-t border-stone-200">
         <div class="grid grid-cols-2 gap-6">
@@ -155,23 +160,14 @@
     </main>
     
     <footer class="bg-stone-50 p-6 border-t border-stone-200">
-        <!-- [MODIFIED] Reverted grid cols and removed AI button -->
         <section class="grid grid-cols-[auto,1fr] items-start gap-x-2">
           <label for="notes" class="block text-sm font-bold text-stone-700 whitespace-nowrap pt-2 text-right">Notes / Payment Terms:</label>
           <textarea id="notes" rows="1" class="invisible-input block w-full h-auto overflow-auto whitespace-pre-wrap rounded-md border-stone-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 px-3 py-2"></textarea>
         </section>
     </footer>
 
-    <!-- [REMOVED] Context Menu was here -->
-
-  </div>
-  
-  <!-- [REMOVED] Gemini Modal was here -->
-
-  <script>
+  </div> <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // [REMOVED] GEMINI_API_KEY was here
-
       // [MODIFIED] Updated element IDs
       const clientLine1 = document.getElementById('client-line1');
       const clientRest = document.getElementById('client-rest');
@@ -187,10 +183,7 @@
       const newInvoiceBtn = document.getElementById('newInvoiceBtn');
       const previewInvoiceBtn = document.getElementById('previewInvoiceBtn');
       const eyeIcon = document.getElementById('preview-icon-eye');
-      const maskedIcon = document.getElementById('preview-icon-masked'); // [MODIFIED]
-      // [REMOVED] contextMenu was here
-
-      // [REMOVED] Gemini Modal Elements were here
+      const eyeSlashIcon = document.getElementById('preview-icon-eye-slash');
 
       (function runSelfTests(){
         console.assert(!!invoiceTableBody, 'invoiceTableBody missing');
@@ -200,20 +193,11 @@
         console.assert(!!dateIssuedInput, 'dateIssuedInput missing');
         console.assert(!!exportPdfBtn && !!newInvoiceBtn, 'header buttons missing');
         console.assert(!!previewInvoiceBtn, 'preview button missing');
-        // [REMOVED] contextMenu assertion was here
-        // [REMOVED] Gemini Assertions were here
       })();
 
       let invoiceData = [];
-      let isPreviewMode = false; // Default to 'false' (masked)
+      let isPreviewMode = false;
       let activeEditIndex = 0; 
-      // [REMOVED] contextMenuRowIndex was here
-
-      // [REMOVED] callGeminiApi function was here
-
-      // [REMOVED] handleSparkleDesc function was here
-      
-      // [REMOVED] handleSparkleNotes function was here
 
       Object.defineProperty(window, 'invoiceData', {
         configurable: true,
@@ -264,9 +248,7 @@
           clientRest.style.height = maxHeight + 'px';
       }
 
-      function defaultFirstRow() { return { description: 'Products & Services', quantity: 6.0, unit: 'Hrs', rate: 75.00, total: 6.0 * 75.00 }; }
-      // [NEW] Blank entry function
-      function blankEntry() { return { description: '', quantity: '', unit: 'Hrs', rate: '', total: 0 }; }
+      function defaultFirstRow() { return { description: 'Products & Services', quantity: 6.0, unit: 'Hrs', rate: 75.00, total: 6.0 * 75.00, isPayment: false }; }
 
       const DEFAULT_NOTES = 'Thank you for your business!';
       function migrateNotes(val) {
@@ -410,29 +392,17 @@
       function updateGrandTotal() {
         const grandTotal = invoiceData.reduce((s, it) => s + (Number(it.total) || 0), 0);
         const formatted = formatCurrency(grandTotal);
+        // --- [FIXED LINE] ---
         // Show formatted currency when preview is ON (true), hide it ('***') when preview is OFF (false)
-        // [MODIFIED] Added teal color class
         grandTotalCell.textContent = isPreviewMode ? formatted : '***';
-        if (!isPreviewMode) {
-            grandTotalCell.classList.add('text-teal-600');
-        } else {
-            grandTotalCell.classList.remove('text-teal-600');
-        }
+        // --- [END FIXED LINE] ---
         grandTotalCell.setAttribute('data-actual', formatted);
       }
 
-      function cloneEntry(e) { return { description: e.description, quantity: e.quantity, unit: e.unit, rate: e.rate, total: e.total }; }
+      function cloneEntry(e) { return { description: e.description, quantity: e.quantity, unit: e.unit, rate: e.rate, total: e.total, isPayment: e.isPayment || false }; }
       function parseTimeToDecimal(t) { if (!t) return 0; if (!String(t).includes(':')) { const n = parseFloat(t); return Number.isFinite(n) ? n : 0; } const [h,m]=String(t).split(':'); return (parseInt(h,10)||0)+((parseInt(m,10)||0)/60); }
       function tdText(cls, text) { const td=document.createElement('td'); td.className=cls; td.textContent=text; return td; }
-      
-      // [MODIFIED] Validation logic
-      function parseQtyInput(val, unit) {
-        if (val === '') return 1.0; // Default to 1.0 if blank
-        const parsedVal = unit === 'Hrs' ? parseTimeToDecimal(val) : parseFloat(val);
-        // Disallow negative QTY or 0
-        if (!Number.isFinite(parsedVal) || parsedVal <= 0) return 0; 
-        return parsedVal;
-      }
+      function parseQtyInput(val, unit) { return unit === 'Hrs' ? parseTimeToDecimal(val) : (parseInt(val, 10) || 0); }
       
       // --- [MODIFIED] Uses generic 'edit-rate' ID ---
       function commitRateFromInput() {
@@ -442,63 +412,65 @@
         // If the element is active, its value is raw. Commit it to dataset.
         if (document.activeElement === rateEl) {
              const raw = (rateEl.value || '').replace(/[^0-9.]/g, '');
-             let numeric = parseFloat(raw);
-             // [MODIFIED] Enforce positive rate
-             if (!Number.isFinite(numeric) || numeric < 0) numeric = 0;
-             rateEl.dataset.actual = numeric.toFixed(2);
+             const numeric = parseFloat(raw);
+             rateEl.dataset.actual = (Number.isFinite(numeric) ? numeric : 0).toFixed(2);
         } else {
             // If element is not active, its value is already a display value ('**' or '$').
             // We must check if that display value has been manually changed (e.g., user typed and clicked away)
-            const maskedDisplay = '***'; // [MODIFIED]
-            const currencyDisplay = formatCurrency(parseFloat(rateEl.dataset.actual || '0') || 0);
-            const displayValue = isPreviewMode ? currencyDisplay : maskedDisplay;
-            
+            const displayValue = isPreviewMode ? formatCurrency(parseFloat(rateEl.dataset.actual || '0') || 0) : '**';
             if (rateEl.value !== displayValue) {
                 // User typed something and blurred.
                 const raw = (rateEl.value || '').replace(/[^0-9.]/g, '');
-                let numeric = parseFloat(raw);
-                // [MODIFIED] Enforce positive rate
-                if (!Number.isFinite(numeric) || numeric < 0) numeric = 0;
-                rateEl.dataset.actual = numeric.toFixed(2);
+                const numeric = parseFloat(raw);
+                rateEl.dataset.actual = (Number.isFinite(numeric) ? numeric : 0).toFixed(2);
             }
         }
         
         // Finally, set the display value
-        // [MODIFIED] Use '***' for masked display
-        rateEl.value = isPreviewMode ? formatCurrency(parseFloat(rateEl.dataset.actual || '0') || 0) : '***';
+        rateEl.value = isPreviewMode ? formatCurrency(parseFloat(rateEl.dataset.actual || '0') || 0) : '**';
       }
 
       // --- [NEW] Saves data from active editor to invoiceData array ---
       function commitActiveEditor() {
-          if (activeEditIndex === null || !invoiceData[activeEditIndex] || !document.getElementById('edit-desc')) {
-             // Editor isn't rendered or valid, so nothing to commit.
-             return; 
-          }
+          if (activeEditIndex === null || !invoiceData[activeEditIndex]) return;
 
           const entry = invoiceData[activeEditIndex];
           const descEl = document.getElementById('edit-desc');
-          const qtyEl  = document.getElementById('edit-qty');
-          const rateEl = document.getElementById('edit-rate');
-          const totalInputEl = document.getElementById('edit-total-input');
-          
-          entry.description = descEl.value;
-          entry.quantity = qtyEl.value; // Save raw string
-          
-          commitRateFromInput(); // This will fix the input's value AND update dataset.actual
-          entry.rate = parseFloat(rateEl.dataset.actual || '0') || 0;
-          
-          // --- [NEW] Check if total is manual ---
-          const isManualTotal = (String(entry.quantity).trim() === '') && (Number(entry.rate) || 0) === 0;
-          
-          if (isManualTotal && totalInputEl) {
-              // If manual, read from the total input's dataset
-              entry.total = parseFloat(totalInputEl.dataset.actual || '0') || 0;
-          } else {
-              // If calculated, re-calculate
-              const qtyForCalc = parseQtyInput(entry.quantity, entry.unit);
-              entry.total = qtyForCalc * entry.rate;
+          const totalEl = document.getElementById('edit-total');
+
+          if (!descEl) {
+             // Editor wasn't rendered (e.g., on initial load), so nothing to commit.
+             return;
           }
-          
+
+          entry.description = descEl.value;
+
+          if (entry.isPayment) {
+              // Payment mode: commit the total value directly
+              if (totalEl && totalEl.tagName === 'INPUT') {
+                  const raw = (totalEl.value || '').replace(/[^0-9.\-]/g, '');
+                  const numeric = parseFloat(raw);
+                  entry.total = Number.isFinite(numeric) ? numeric : 0;
+              }
+              entry.quantity = 0;
+              entry.rate = 0;
+          } else {
+              // Normal mode: calculate total from qty and rate
+              const qtyEl  = document.getElementById('edit-qty');
+              const rateEl = document.getElementById('edit-rate');
+
+              if (!qtyEl || !rateEl) {
+                 return;
+              }
+
+              entry.quantity = parseQtyInput(qtyEl.value, entry.unit);
+
+              // Commit rate from its dataset
+              commitRateFromInput(); // This will fix the input's value AND update dataset.actual
+              entry.rate = parseFloat(rateEl.dataset.actual || '0') || 0;
+
+              entry.total = entry.quantity * entry.rate;
+          }
           saveInvoiceData();
       }
 
@@ -511,164 +483,55 @@
           const descEl = document.getElementById('edit-desc');
           const qtyEl  = document.getElementById('edit-qty');
           const rateEl = document.getElementById('edit-rate');
-          const totalEl = document.getElementById('edit-total'); // Span
-          const totalInputEl = document.getElementById('edit-total-input'); // Input
+          const totalEl = document.getElementById('edit-total');
 
-          if (!descEl || !qtyEl || !rateEl || !totalEl || !totalInputEl) return;
+          if (!descEl || !totalEl) return;
 
           row.description = descEl.value;
-          
-          const activeEl = document.activeElement;
-          
-          // --- [MODIFIED] Logic for QTY/RATE/TOTAL ---
-          if (activeEl.id === 'edit-total-input') {
-              // User is typing in TOTAL. This is a manual override.
-              // [MODIFIED] Allow negative sign
-              const raw = (totalInputEl.value || '').replace(/[^0-9.-]/g, '');
-              let n = parseFloat(raw);
-              // [MODIFIED] Allow negative numbers
-              if (!Number.isFinite(n)) n = 0;
 
-              row.total = n;
-              totalInputEl.dataset.actual = n.toFixed(2);
-              
-              // When user types in TOTAL, we must be in manual mode, so QTY/RATE are blank.
-              row.quantity = ''; // Store raw string
-              row.rate = '';     // Store raw string
-
-          } else {
-              // User is typing in DESC, QTY, or RATE.
-              row.quantity = qtyEl.value; // Store the raw string
-              
-              const qtyForCalc = parseQtyInput(qtyEl.value, row.unit); // Get calc value (1.0 for blank)
-
-              if (activeEl.id === 'edit-rate') {
-                  const raw = (rateEl.value || '').replace(/[^0-9.]/g, '');
-                  let n = parseFloat(raw);
-                  if (!Number.isFinite(n) || n < 0) n = 0; 
-                  row.rate = n;
-                  rateEl.dataset.actual = row.rate.toFixed(2);
+          // If in payment mode, get total directly from input
+          if (row.isPayment) {
+              if (totalEl.tagName === 'INPUT') {
+                  const raw = (totalEl.value || '').replace(/[^0-9.\-]/g, '');
+                  const n = parseFloat(raw);
+                  row.total = Number.isFinite(n) ? n : 0;
               } else {
+                  // totalEl is a span, shouldn't happen in payment mode
+                  row.total = parseFloat(totalEl.textContent.replace(/[^0-9.\-]/g, '')) || 0;
+              }
+              row.quantity = 0;
+              row.rate = 0;
+          } else {
+              // Normal calculation mode
+              if (!qtyEl || !rateEl) return;
+
+              row.quantity = parseQtyInput(qtyEl.value, row.unit);
+
+              // Rate logic for live update
+              if (document.activeElement === rateEl) {
+                  const raw = (rateEl.value || '').replace(/[^0-9.]/g, '');
+                  const n = parseFloat(raw);
+                  row.rate = Number.isFinite(n) ? n : 0;
+                  rateEl.dataset.actual = row.rate.toFixed(2); // Update dataset live
+              } else {
+                  // If rate is not active, its value is driven by dataset.actual
                   row.rate = parseFloat(rateEl.dataset.actual || '0') || 0;
               }
-              
-              // Store rate as a string for 'blank' check
-              if (row.rate > 0) {
-                 row.rate = String(row.rate);
-              } else if (activeEl.id !== 'edit-rate') {
-                 // Don't overwrite if user is clearing rate
-                 if (rateEl.value !== '') {
-                    row.rate = String(row.rate);
-                 } else {
-                    row.rate = '';
-                 }
-              } else {
-                row.rate = '';
-              }
-              
-              row.total = qtyForCalc * (Number(row.rate) || 0);
+
+              row.total = row.quantity * row.rate;
           }
 
-          // --- [NEW] Visibility Logic ---
-          // Check the state *after* updates.
-          // Use raw `row.quantity` and `row.rate`.
-          const isNowManual = (String(row.quantity).trim() === '') && (Number(row.rate) || 0) === 0;
-
-          if (isNowManual) {
-              // Show INPUT
-              if (activeEl.id !== 'edit-total-input') {
-                  // Update input's value if it's not active
-                  totalInputEl.dataset.actual = row.total.toFixed(2);
-                  totalInputEl.value = isPreviewMode ? formatCurrency(row.total) : '***';
+          // Update display
+          if (totalEl.tagName === 'INPUT') {
+              // Don't update while user is typing in it
+              if (document.activeElement !== totalEl) {
+                  totalEl.value = isPreviewMode ? formatCurrency(row.total) : '**';
               }
-              if (!isPreviewMode) totalInputEl.classList.add('text-teal-600');
-              else totalInputEl.classList.remove('text-teal-600');
-              
-              totalEl.classList.add('hidden');
-              totalInputEl.classList.remove('hidden');
           } else {
-              // Show SPAN
-              totalEl.textContent = isPreviewMode ? formatCurrency(row.total) : '***';
-              if (!isPreviewMode) {
-                  totalEl.classList.add('text-teal-600');
-              } else {
-                  totalEl.classList.remove('text-teal-600');
-              }
-              totalEl.classList.remove('hidden');
-              totalInputEl.classList.add('hidden');
+              totalEl.textContent = isPreviewMode ? formatCurrency(row.total) : '**';
           }
-          
           updateGrandTotal();
           saveInvoiceData();
-      }
-      
-      // [NEW] Handles "Enter" key press in the editor
-      function handleEditorKeydown(event) {
-          // Only trigger on "Enter" (without Shift) and only on the top row
-          if (event.key !== 'Enter' || event.shiftKey || activeEditIndex !== 0) {
-              return;
-          }
-          
-          event.preventDefault(); // Stop default "Enter" action (newline or form submit)
-          
-          commitActiveEditor(); // Save the current state of row 0
-          
-          const entryToDuplicate = cloneEntry(invoiceData[0]);
-          
-          // --- Validation ---
-          // 1. Check Description
-          if (entryToDuplicate.description.trim() === '') {
-              flashValidationError('edit-desc');
-              return;
-          }
-          
-          // 2. Check QTY/RATE/TOTAL
-          const isManualTotal = (String(entryToDuplicate.quantity).trim() === '') && (Number(entryToDuplicate.rate) || 0) === 0;
-          const qtyForCalc = parseQtyInput(entryToDuplicate.quantity, entryToDuplicate.unit);
-          
-          if (isManualTotal) {
-               // [MODIFIED] Validation for manual total removed to allow negative values.
-               // User is overriding, so any value (including 0 or negative) is allowed.
-          } else {
-              // In calculated mode, QTY and RATE must be positive
-              if (qtyForCalc <= 0) {
-                  flashValidationError('edit-qty');
-                  return;
-              }
-              if (entryToDuplicate.rate <= 0) {
-                  flashValidationError('edit-rate');
-                  return;
-              }
-          }
-          // --- End Validation ---
-          
-          // Create the new blank row for the top
-          const newTopRow = blankEntry();
-          newTopRow.unit = entryToDuplicate.unit; // Inherit unit
-          newTopRow.quantity = entryToDuplicate.quantity; // Inherit quantity
-          newTopRow.rate = entryToDuplicate.rate; // Inherit rate
-          
-          invoiceData[0] = newTopRow; // Set row 0 to the new blank-ish row
-          invoiceData.splice(1, 0, entryToDuplicate); // Insert the saved data at row 1
-          
-          activeEditIndex = 0; // Keep editor on the new top row
-          
-          renderInvoice(); 
-          saveInvoiceData(); // Save the updated array
-
-          // Focus the new description input
-          const firstDesc = document.getElementById('edit-desc');
-          if (firstDesc) {
-              requestAnimationFrame(() => firstDesc.focus());
-          }
-      }
-
-      // [NEW] Helper function to flash a validation error
-      function flashValidationError(elementId) {
-          const el = document.getElementById(elementId);
-          if (!el) return;
-          el.classList.add('ring-2', 'ring-red-500');
-          setTimeout(() => el.classList.remove('ring-2', 'ring-red-500'), 700);
       }
 
       // --- [HEAVILY MODIFIED] ---
@@ -679,201 +542,153 @@
           const newRow = document.createElement('tr');
           newRow.className = (index % 2 !== 0) ? 'bg-stone-50' : 'bg-white';
 
-          // Use parseQtyInput to handle '1.0' default for blank
-          const qtyForCalc = parseQtyInput(String(entry.quantity), entry.unit);
+          const qtyDisplay = entry.unit === 'Hrs' ? (Number(entry.quantity) || 0).toFixed(2) : String(parseInt(entry.quantity, 10) || 0);
           const actualRate = (Number(entry.rate) || 0);
-          
-          // [MODIFIED] Check if total is manual
-          const isManualTotalStatic = (String(entry.quantity).trim() === '') && (Number(entry.rate) || 0) === 0;
-          let actualTotal;
-          
-          if (isManualTotalStatic) {
-              actualTotal = (Number(entry.total) || 0); // Use stored total
-          } else {
-              actualTotal = qtyForCalc * actualRate; // Recalculate
-              entry.total = actualTotal; // Persist this calculation
-          }
-
-          const qtyDisplay = entry.unit === 'Hrs' ? qtyForCalc.toFixed(2) : String(parseInt(qtyForCalc, 10));
+          const actualTotal = (Number(entry.total) || 0);
 
           // --- Polarity is: Preview ON (true) = Show Currency, Preview OFF (false) = Show '***' ---
-          // [MODIFIED] Use '***'
-          const rateDisplay = isPreviewMode ? formatCurrency(actualRate) : '***';
-          const totalDisplay = isPreviewMode ? formatCurrency(actualTotal) : '***';
-          const maskedColorClass = !isPreviewMode ? 'text-teal-600' : '';
+          const rateDisplay = isPreviewMode ? formatCurrency(actualRate) : '**';
+          const totalDisplay = isPreviewMode ? formatCurrency(actualTotal) : '**';
 
           if (index === activeEditIndex) {
             // --- This row IS the active editor ---
-            // [MODIFIED] Added shadow-inner-lg
             newRow.className += ' shadow-inner-lg';
 
-            const tdDesc = document.createElement('td');
-            // [MODIFIED] Reverted className
-            tdDesc.className = 'px-4 py-2';
+            const tdDesc = document.createElement('td'); tdDesc.className = 'px-4 py-2';
             const descArea = document.createElement('textarea');
-            descArea.id = 'edit-desc'; // Generic ID
-            // [MODIFIED] Added invisible-input class
+            descArea.id = 'edit-desc';
             descArea.className = 'invisible-input w-full rounded-md border-stone-300 border shadow-sm focus:border-teal-500 focus:ring-teal-500 px-2 py-1 resize-none';
             descArea.rows = 2; descArea.value = entry.description || '';
-            
-            // [REMOVED] Sparkle button was here
-            
-            // [MODIFIED] Reverted append
             tdDesc.appendChild(descArea);
 
             const tdQty = document.createElement('td'); tdQty.className = 'px-4 py-2 whitespace-nowrap text-right';
-            const qtyInput = document.createElement('input');
-            qtyInput.id = 'edit-qty'; // Generic ID
-            qtyInput.setAttribute('inputmode','decimal');
-            // [MODIFIED] Added invisible-input class
-            qtyInput.className = 'invisible-input w-12 text-right rounded-md border-stone-300 border shadow-sm focus:border-teal-500 focus:ring-teal-500 px-2 py-1';
-            // [MODIFIED] Use entry.quantity (raw value) not qtyDisplay
-            qtyInput.value = entry.quantity; 
-            tdQty.appendChild(qtyInput);
-
             const tdRate = document.createElement('td'); tdRate.className = 'px-2 py-2 whitespace-nowrap text-right';
-            const rateInput = document.createElement('input');
-            rateInput.id = 'edit-rate'; // Generic ID
-            rateInput.type = 'text'; rateInput.inputMode = 'decimal';
-            // [MODIFIED] Added invisible-input class and masked color
-            rateInput.className = `invisible-input w-16 text-right rounded-md border-stone-300 border shadow-sm focus:border-teal-500 focus:ring-teal-500 px-2 py-1 ${maskedColorClass}`;
-            rateInput.dataset.actual = actualRate.toFixed(2);
-            rateInput.value = rateDisplay; // Set display value
-            tdRate.appendChild(rateInput);
-
             const tdTotal = document.createElement('td'); tdTotal.className = 'px-2 py-2 whitespace-nowrap text-right';
 
-            // --- [NEW] Create both span and input for TOTAL ---
-            const totalSpan = document.createElement('span');
-            totalSpan.id = 'edit-total';
-            totalSpan.className = maskedColorClass;
-            
-            const totalInput = document.createElement('input');
-            totalInput.id = 'edit-total-input';
-            totalInput.type = 'text';
-            totalInput.inputMode = 'decimal';
-            // [MODIFIED] Increased width w-20
-            totalInput.className = `invisible-input w-20 text-right rounded-md border-stone-300 border shadow-sm focus:border-teal-500 focus:ring-teal-500 px-2 py-1 ${maskedColorClass}`;
-            
-            // Check if total should be manual (blank qty AND blank rate)
-            // Use raw entry values
-            const isManualTotal = (String(entry.quantity).trim() === '') && (Number(entry.rate) || 0) === 0;
+            if (entry.isPayment) {
+                // PAYMENT MODE: Show disabled QTY/RATE and editable TOTAL
+                tdQty.textContent = '—';
+                tdQty.className += ' text-stone-400';
+                tdRate.textContent = '—';
+                tdRate.className += ' text-stone-400';
 
-            if (isManualTotal) {
-                totalSpan.classList.add('hidden');
+                const totalInput = document.createElement('input');
+                totalInput.id = 'edit-total';
+                totalInput.type = 'text';
+                totalInput.inputMode = 'decimal';
+                totalInput.className = 'invisible-input w-20 text-right rounded-md border-stone-300 border shadow-sm focus:border-teal-500 focus:ring-teal-500 px-2 py-1';
+                totalInput.value = isPreviewMode ? formatCurrency(actualTotal) : '**';
                 totalInput.dataset.actual = actualTotal.toFixed(2);
-                // [MODIFIED] Use totalDisplay which is already '***' or formatted
-                totalInput.value = totalDisplay; 
-            } else { 
-                totalInput.classList.add('hidden');
-                totalSpan.textContent = totalDisplay;
-            }
-            
-            tdTotal.appendChild(totalSpan); 
-            tdTotal.appendChild(totalInput);
+                tdTotal.appendChild(totalInput);
 
-            // --- [MODIFIED] Add/Delete Button Logic ---
-            const tdActions = document.createElement('td'); 
-            tdActions.className = 'px-2 py-2 whitespace-nowrap text-center';
-            
+                totalInput.addEventListener('focus', () => {
+                    const actual = totalInput.dataset.actual || '0.00';
+                    totalInput.value = actual;
+                    requestAnimationFrame(() => { try { totalInput.select(); } catch {} });
+                });
+                totalInput.addEventListener('blur', () => {
+                    const raw = (totalInput.value || '').replace(/[^0-9.\-]/g, '');
+                    const numeric = parseFloat(raw);
+                    totalInput.dataset.actual = (Number.isFinite(numeric) ? numeric : 0).toFixed(2);
+                    totalInput.value = isPreviewMode ? formatCurrency(parseFloat(totalInput.dataset.actual)) : '**';
+                    recalcAndPersistActiveRow();
+                });
+                totalInput.addEventListener('input', () => {
+                    recalcAndPersistActiveRow();
+                });
+            } else {
+                // NORMAL MODE: Show editable QTY/RATE and calculated TOTAL
+                const qtyInput = document.createElement('input');
+                qtyInput.id = 'edit-qty';
+                qtyInput.setAttribute('inputmode','decimal');
+                qtyInput.className = 'invisible-input w-12 text-right rounded-md border-stone-300 border shadow-sm focus:border-teal-500 focus:ring-teal-500 px-2 py-1';
+                qtyInput.value = qtyDisplay;
+                tdQty.appendChild(qtyInput);
+
+                const rateInput = document.createElement('input');
+                rateInput.id = 'edit-rate';
+                rateInput.type = 'text';
+                rateInput.inputMode = 'decimal';
+                rateInput.className = 'invisible-input w-16 text-right rounded-md border-stone-300 border shadow-sm focus:border-teal-500 focus:ring-teal-500 px-2 py-1';
+                rateInput.dataset.actual = actualRate.toFixed(2);
+                rateInput.value = rateDisplay;
+                tdRate.appendChild(rateInput);
+
+                const totalSpan = document.createElement('span');
+                totalSpan.id = 'edit-total';
+                totalSpan.textContent = totalDisplay;
+                tdTotal.appendChild(totalSpan);
+
+                rateInput.addEventListener('focus', () => {
+                    const actual = rateInput.dataset.actual || '0.00';
+                    rateInput.value = actual;
+                    requestAnimationFrame(() => { try { rateInput.select(); } catch {} });
+                });
+                rateInput.addEventListener('blur', () => {
+                    commitRateFromInput();
+                    recalcAndPersistActiveRow();
+                });
+                rateInput.addEventListener('input', () => {
+                    recalcAndPersistActiveRow();
+                });
+                qtyInput.addEventListener('input', () => { recalcAndPersistActiveRow(); });
+            }
+
+            const tdActions = document.createElement('td'); tdActions.className = 'px-2 py-2 whitespace-nowrap text-center';
+
+            // Add payment toggle button (dollar sign)
+            const toggleBtn = document.createElement('button');
+            toggleBtn.className = entry.isPayment
+                ? 'toggle-payment-button inline-flex items-center justify-center w-8 h-8 rounded-full bg-green-600 hover:bg-green-700 text-white font-bold text-sm shadow-lg border border-stone-200'
+                : 'toggle-payment-button inline-flex items-center justify-center w-8 h-8 rounded-full bg-stone-400 hover:bg-stone-500 text-white font-bold text-sm shadow-lg border border-stone-200';
+            toggleBtn.title = entry.isPayment ? 'Switch to normal mode' : 'Record a payment';
+            toggleBtn.textContent = '$';
+            toggleBtn.dataset.index = index;
+            tdActions.appendChild(toggleBtn);
+
             if (index === 0) {
-                // --- Top Row: Add Button ---
                 const addBtn = document.createElement('button');
-                addBtn.className = 'add-button inline-flex items-center justify-center w-8 h-8 rounded-full bg-teal-600 hover:bg-teal-700 text-white font-extrabold text-lg shadow-lg border border-stone-200';
-                addBtn.title = 'Add Row';
+                addBtn.className = 'add-button inline-flex items-center justify-center w-8 h-8 rounded-full bg-teal-600 hover:bg-teal-700 text-white font-extrabold text-lg shadow-lg border border-stone-200 ml-1';
+                addBtn.title = 'Add row';
                 addBtn.textContent = '+';
                 tdActions.appendChild(addBtn);
             } else {
-                // --- Other Rows: Delete Button ---
-                const deleteBtn = document.createElement('button');
-                deleteBtn.className = 'delete-button inline-flex items-center justify-center w-8 h-8 rounded-full bg-red-600 hover:bg-red-700 text-white shadow-lg border border-stone-200';
-                deleteBtn.title = 'Delete Row';
-                // Minus Circle Icon
-                deleteBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM6.75 9.25a.75.75 0 000 1.5h6.5a.75.75 0 000-1.5h-6.5z" clip-rule="evenodd" /></svg>';
-                tdActions.appendChild(deleteBtn);
+                const delBtn = document.createElement('button');
+                delBtn.className = 'delete-button inline-flex items-center justify-center w-8 h-8 rounded-full bg-red-600 hover:bg-red-700 text-white font-extrabold text-lg shadow-lg border border-stone-200 ml-1';
+                delBtn.title = 'Delete row';
+                delBtn.textContent = '−';
+                delBtn.dataset.index = index;
+                tdActions.appendChild(delBtn);
             }
-            // --- [END MODIFIED] Add/Delete Button Logic ---
-            
+
             newRow.appendChild(tdDesc);
             newRow.appendChild(tdQty);
             newRow.appendChild(tdRate);
             newRow.appendChild(tdTotal);
             newRow.appendChild(tdActions);
 
-            // Attach listeners immediately
             requestAnimationFrame(() => autoResizeTextarea(descArea));
-            
-            // [NEW] Add keydown listener for "Enter"
-            descArea.addEventListener('keydown', handleEditorKeydown);
-
-            rateInput.addEventListener('focus', () => {
-                const actual = rateInput.dataset.actual || '0.00';
-                rateInput.value = actual;
-                rateInput.classList.remove('text-teal-600'); // Remove color on focus
-                requestAnimationFrame(() => { try { rateInput.select(); } catch {} });
-            });
-            rateInput.addEventListener('blur', () => {
-                commitRateFromInput(); // This function now uses the generic ID
-                recalcAndPersistActiveRow(); // This will re-apply color if needed
-            });
-            rateInput.addEventListener('input', () => {
-                recalcAndPersistActiveRow(); // Recalc on input
-            });
-            // [NEW] Add keydown listener for "Enter"
-            rateInput.addEventListener('keydown', handleEditorKeydown);
-
             descArea.addEventListener('input', () => { autoResizeTextarea(descArea); recalcAndPersistActiveRow(); });
-            qtyInput.addEventListener('input', () => { recalcAndPersistActiveRow(); });
-            // [NEW] Add keydown listener for "Enter"
-            qtyInput.addEventListener('keydown', handleEditorKeydown);
-
-            // --- [NEW] Listeners for manual total input ---
-            totalInput.addEventListener('focus', () => {
-                const actual = totalInput.dataset.actual || '0.00';
-                totalInput.value = actual;
-                totalInput.classList.remove('text-teal-600'); // Remove color on focus
-                requestAnimationFrame(() => { try { totalInput.select(); } catch {} });
-            });
-            totalInput.addEventListener('blur', () => {
-                // On blur, commit the value to dataset
-                // [MODIFIED] Allow negative sign
-                const raw = (totalInput.value || '').replace(/[^0-9.-]/g, '');
-                let numeric = parseFloat(raw);
-                // [MODIFIED] Allow negative numbers
-                if (!Number.isFinite(numeric)) numeric = 0;
-                totalInput.dataset.actual = numeric.toFixed(2);
-                totalInput.value = isPreviewMode ? formatCurrency(numeric) : '***';
-                if (!isPreviewMode) totalInput.classList.add('text-teal-600');
-                
-                recalcAndPersistActiveRow(); // Recalc/save
-            });
-            totalInput.addEventListener('input', () => {
-                recalcAndPersistActiveRow(); // Recalc/save on input
-            });
-            // [NEW] Add keydown listener for "Enter"
-            totalInput.addEventListener('keydown', handleEditorKeydown);
 
           } else {
             // --- This row is STATIC ---
             const tdDesc = tdText('px-4 py-2 text-sm text-stone-900 break-words', String(entry.description || ''));
             tdDesc.dataset.index = index;
             tdDesc.dataset.field = 'description';
-            
-            // [MODIFIED] Use qtyDisplay
-            const tdQty = tdText('px-4 py-2 whitespace-nowrap text-sm text-stone-500 text-right', qtyDisplay);
+
+            // Show "—" for payment rows
+            const tdQty = tdText('px-4 py-2 whitespace-nowrap text-sm text-stone-500 text-right', entry.isPayment ? '—' : qtyDisplay);
             tdQty.dataset.index = index;
             tdQty.dataset.field = 'quantity';
-            
-            // [MODIFIED] Added masked color
-            const tdRate = tdText(`px-2 py-2 whitespace-nowrap text-sm text-stone-500 text-right ${maskedColorClass}`, rateDisplay);
+
+            const tdRate = tdText('px-2 py-2 whitespace-nowrap text-sm text-stone-500 text-right', entry.isPayment ? '—' : rateDisplay);
             tdRate.dataset.index = index;
             tdRate.dataset.field = 'rate';
-            
-            // [MODIFIED] Added masked color
-            const tdTotal = tdText(`px-2 py-2 whitespace-nowrap text-sm text-stone-500 text-right ${maskedColorClass}`, totalDisplay);
+
+            const tdTotal = tdText('px-2 py-2 whitespace-nowrap text-sm text-stone-500 text-right', totalDisplay);
             tdTotal.dataset.index = index;
-            tdTotal.dataset.field = 'total'; // Not editable, but good for consistency
-            
+            tdTotal.dataset.field = 'total';
+
             const tdActions = document.createElement('td');
             tdActions.className = 'px-2 py-2';
             tdActions.dataset.index = index; // Clicking here will also activate the row
@@ -898,40 +713,28 @@
 
       // --- [HEAVILY MODIFIED] ---
       invoiceTableBody.addEventListener('click', function(event) {
-        // [REMOVED] Gemini Sparkle Button Logic was here
-
-        // [MODIFIED] Context Menu Logic
         const addBtn = event.target.closest('.add-button');
-        const deleteBtn = event.target.closest('.delete-button'); // [NEW]
+        const delBtn = event.target.closest('.delete-button');
         const editableCell = event.target.closest('td[data-index]');
-        
-        // [REMOVED] Hide context menu on any click
 
         if (addBtn) {
-          // --- [MODIFIED] Logic for ADDING a row ---
-          
-          commitActiveEditor(); // Save current data
+          // --- Logic for ADDING a row ---
+          // This button only exists when activeEditIndex is 0.
 
-          // --- [MODIFIED] New Logic: Add a row ABOVE, inheriting QTY/Unit/Rate ---
-          const newIndex = activeEditIndex;
-          
-          // Get the current row's data (which was just saved)
-          const currentEntry = invoiceData[newIndex];
-          
-          // Create a new blank entry
-          const newEntry = blankEntry();
-          
-          // Set the new entry's quantity/unit to the current entry's
-          if (currentEntry) {
-            newEntry.quantity = currentEntry.quantity;
-            newEntry.unit = currentEntry.unit;
-            newEntry.rate = currentEntry.rate; // <-- [NEW] Inherit rate
+          commitActiveEditor(); // Save current data from row 0
+
+          const entryToAdd = invoiceData[0]; // The entry is already saved
+
+          // Check for empty description
+          if (!entryToAdd.description || entryToAdd.description.trim() === "") {
+              entryToAdd.description = "Products & Services";
           }
-          
-          invoiceData.splice(newIndex, 0, newEntry); // Insert the new row
-          activeEditIndex = newIndex; // Move editor to the new row
-          
-          renderInvoice(); 
+
+          invoiceData.splice(1, 0, cloneEntry(entryToAdd)); // Insert a *copy*
+          invoiceData[0] = defaultFirstRow(); // Reset the first row to defaults
+          activeEditIndex = 0; // Keep editor on the new first row
+
+          renderInvoice();
           saveInvoiceData(); // Save the updated array
 
           const firstDesc = document.getElementById('edit-desc');
@@ -940,25 +743,81 @@
            }
           return;
         }
-        
-        // --- [NEW] Delete Button Logic ---
-        if (deleteBtn) {
-            commitActiveEditor(); // Save just in case
-            
-            const i = activeEditIndex;
-            
-            if (invoiceData.length > 1) {
-                invoiceData.splice(i, 1);
-                if (activeEditIndex >= i) {
-                    activeEditIndex = Math.max(0, activeEditIndex - 1);
-                }
-            }
-            
-            renderInvoice();
-            saveInvoiceData();
-            return; // Stop further click processing
+
+        if (delBtn) {
+          // --- Logic for DELETING a row ---
+          const index = parseInt(delBtn.dataset.index, 10);
+
+          // Remove the row from invoiceData
+          invoiceData.splice(index, 1);
+
+          // Ensure there's always at least one row
+          if (invoiceData.length === 0) {
+              invoiceData = [ defaultFirstRow() ];
+          }
+
+          // Move editor back to row 0
+          activeEditIndex = 0;
+
+          renderInvoice();
+          saveInvoiceData();
+
+          const firstDesc = document.getElementById('edit-desc');
+          if (firstDesc) {
+              requestAnimationFrame(() => firstDesc.focus());
+          }
+          return;
         }
-        
+
+        const toggleBtn = event.target.closest('.toggle-payment-button');
+        if (toggleBtn) {
+          // --- Logic for TOGGLING payment mode ---
+          const index = parseInt(toggleBtn.dataset.index, 10);
+
+          // Commit current editor state
+          commitActiveEditor();
+
+          // Toggle the payment mode
+          invoiceData[index].isPayment = !invoiceData[index].isPayment;
+
+          // If switching to payment mode, clear qty/rate and set total to 0 (or keep existing total)
+          if (invoiceData[index].isPayment) {
+              // Keep the current total if it exists, otherwise set to 0
+              if (!invoiceData[index].total) {
+                  invoiceData[index].total = 0;
+              }
+              invoiceData[index].quantity = 0;
+              invoiceData[index].rate = 0;
+          } else {
+              // Switching back to normal mode - restore default values if needed
+              if (!invoiceData[index].quantity && !invoiceData[index].rate) {
+                  invoiceData[index].quantity = 1;
+                  invoiceData[index].rate = 0;
+                  invoiceData[index].total = 0;
+              }
+          }
+
+          // Stay on the same row
+          activeEditIndex = index;
+
+          renderInvoice();
+          saveInvoiceData();
+
+          // Focus the appropriate field
+          if (invoiceData[index].isPayment) {
+              const totalInput = document.getElementById('edit-total');
+              if (totalInput) {
+                  requestAnimationFrame(() => totalInput.focus());
+              }
+          } else {
+              const descArea = document.getElementById('edit-desc');
+              if (descArea) {
+                  requestAnimationFrame(() => descArea.focus());
+              }
+          }
+          return;
+        }
+
         if (editableCell) {
             const index = parseInt(editableCell.dataset.index, 10);
             if (index === activeEditIndex) return; // Already editing this row
@@ -990,55 +849,9 @@
       });
       // --- [END MODIFIED EVENT LISTENER] ---
 
-      // [REMOVED] Context Menu Listeners
-      // ...
-      // ...
-      // ...
-      // [END REMOVED]
-
 
       function getPdfA11yEnabled(){ const v = localStorage.getItem('pdfA11yEnabled'); return v === null ? false : v === 'true'; }
       function setPdfA11yEnabled(val){ try { localStorage.setItem('pdfA11yEnabled', String(!!val)); } catch {} }
-
-      function drawPdfHeader(doc, currentY, margin, pageWidth, teal_600, stone_700, currentInvoiceNumber, dateIssuedDisp, headerLogoData, pdfA11y) {
-          const accessible = !!pdfA11y;
-          doc.setPage(1); doc.setLanguage('en-US');
-          if (accessible) { doc.setFont('helvetica'); doc.setFontSize(0); doc.text(' ', 0, 0); }
-
-          const brandText = 'AIIT.'; const brandTextWidth = doc.getTextWidth(brandText);
-          const brandSlogan = 'www.aiit.support'; const brandSloganWidth = doc.getTextWidth(brandSlogan);
-          const brandX = margin;
-          
-          doc.setFont('helvetica', 'bold'); doc.setFontSize(22);
-          doc.setTextColor.apply(null, teal_600); doc.text('AI', brandX, currentY);
-          doc.setTextColor.apply(null, stone_700); doc.text('IT.', brandX + doc.getTextWidth('AI'), currentY);
-          
-          doc.setFont('helvetica', 'normal'); doc.setFontSize(9);
-          doc.setTextColor.apply(null, [168, 162, 158]);
-          doc.text(brandSlogan, brandX, currentY + 4);
-
-          const invoiceLabel = 'INVOICE'; const invoiceLabelWidth = doc.getTextWidth(invoiceLabel);
-          const invoiceNum = '#' + currentInvoiceNumber; const invoiceNumWidth = doc.getTextWidth(invoiceNum);
-          const dateLabel = 'DATE ISSUED:'; const dateLabelWidth = doc.getTextWidth(dateLabel);
-          const dateVal = dateIssuedDisp; const dateValWidth = doc.getTextWidth(dateVal);
-          
-          const maxLabelWidth = Math.max(dateLabelWidth, invoiceLabelWidth) + 1;
-          const maxValWidth = Math.max(dateValWidth, invoiceNumWidth);
-          const colWidth = maxLabelWidth + maxValWidth;
-          
-          const invoiceNumX = pageWidth - margin - maxValWidth;
-          const invoiceLabelX = invoiceNumX - maxLabelWidth;
-          const dateValX = pageWidth - margin - maxValWidth;
-          const dateLabelX = dateValX - maxLabelWidth;
-          
-          doc.setFont('helvetica', 'bold'); doc.setFontSize(10);
-          doc.setTextColor.apply(null, stone_700);
-          doc.text(invoiceLabel, invoiceLabelX, currentY - 6, { align: 'left' });
-          doc.text(invoiceNum, invoiceNumX, currentY - 6, { align: 'left' });
-          
-          doc.text(dateLabel, dateLabelX, currentY, { align: 'left' });
-          doc.text(dateVal, dateValX, currentY, { align: 'left' });
-      }
 
       dateIssuedInput.addEventListener('change', saveInvoiceData);
       if (notesInput) notesInput.addEventListener('input', () => { autoResizeTextarea(notesInput); saveInvoiceData(); });
@@ -1197,7 +1010,6 @@
         const pdfA11y = getPdfA11yEnabled(); const teal_600 = [13, 148, 136]; const stone_700 = [68, 64, 60];
         const pageWidth = doc.internal.pageSize.getWidth(); const margin = 14; const halfPageWidth = pageWidth / 2; let currentY = 22;
 
-        // [MODIFIED] Swapped to helvetica
         drawPdfHeader(doc, currentY, margin, pageWidth, teal_600, stone_700, currentInvoiceNumber, dateIssuedDisp, undefined, pdfA11y);
 
         currentY += 18;
@@ -1206,15 +1018,14 @@
 
         const dataRows = (window.invoiceData || []);
         const rows = dataRows.map(entry => {
-            // [MODIFIED] Use parseQtyInput to match display logic
-            const actualQty = parseQtyInput(String(entry.quantity), entry.unit);
-            const qtyDisplay = entry.unit === 'Hrs' ? actualQty.toFixed(2) : String(parseInt(actualQty, 10));
-            
-            // [NEW] Handle manual total for PDF
-            const isManualTotal = (String(entry.quantity).trim() === '') && (Number(entry.rate) || 0) === 0;
-            const pdfTotal = isManualTotal ? (Number(entry.total) || 0) : (actualQty * (Number(entry.rate) || 0));
-
-            return [ String(entry.description || ''), qtyDisplay, formatCurrency(entry.rate), formatCurrency(pdfTotal) ];
+            if (entry.isPayment) {
+                // Payment row: show description and total only
+                return [ String(entry.description || ''), '—', '—', formatCurrency(entry.total) ];
+            } else {
+                // Normal row: show all fields
+                const qtyDisplay = entry.unit === 'Hrs' ? (Number(entry.quantity) || 0).toFixed(2) : (parseInt(entry.quantity, 10) || 0);
+                return [ String(entry.description || ''), qtyDisplay, formatCurrency(entry.rate), formatCurrency(entry.total) ];
+            }
         });
         const grandTotal = dataRows.reduce((sum, item) => sum + (Number(item.total) || 0), 0);
 
@@ -1309,14 +1120,12 @@
         if (resetNumber && invoiceNumberInput) {
           invoiceNumberInput.value = localStorage.getItem('lastInvoiceNumber') || '001';
         }
-        // [MODIFIED] Default to VISIBLE (isPreviewMode = true)
-        if (!isPreviewMode) {
-          isPreviewMode = true;
-          previewInvoiceBtn.classList.add('active');
-          previewInvoiceBtn.setAttribute('aria-pressed', 'true');
-          previewInvoiceBtn.title = 'Hide Values';
+        if (isPreviewMode) {
+          isPreviewMode = false;
+          previewInvoiceBtn.classList.remove('active');
+          previewInvoiceBtn.setAttribute('aria-pressed', 'false');
           eyeIcon.classList.remove('hidden');
-          maskedIcon.classList.add('hidden');
+          eyeSlashIcon.classList.add('hidden');
         }
         activeEditIndex = 0; // --- [NEW] Reset active editor to row 0
         renderInvoice();
@@ -1325,26 +1134,19 @@
       if (exportPdfBtn) exportPdfBtn.addEventListener('click', exportToPdf);
       if (newInvoiceBtn) newInvoiceBtn.addEventListener('click', () => clearInvoice(true));
 
-      // [REMOVED] Gemini Modal Listeners were here
-
-
       if (previewInvoiceBtn) {
           previewInvoiceBtn.addEventListener('click', () => {
               isPreviewMode = !isPreviewMode; // Toggle the state
               previewInvoiceBtn.setAttribute('aria-pressed', String(isPreviewMode));
 
               if (isPreviewMode) {
-                  // Show plaintext (eye)
                   previewInvoiceBtn.classList.add('active');
-                  previewInvoiceBtn.title = 'Hide Values';
-                  eyeIcon.classList.remove('hidden');
-                  maskedIcon.classList.add('hidden'); // [MODIFIED]
-              } else {
-                  // Show masked text (***)
-                  previewInvoiceBtn.classList.remove('active');
-                  previewInvoiceBtn.title = 'Show Values';
                   eyeIcon.classList.add('hidden');
-                  maskedIcon.classList.remove('hidden'); // [MODIFIED]
+                  eyeSlashIcon.classList.remove('hidden');
+              } else {
+                  previewInvoiceBtn.classList.remove('active');
+                  eyeIcon.classList.remove('hidden');
+                  eyeSlashIcon.classList.add('hidden');
               }
               
               // --- [NEW] Commit and re-render ---
@@ -1353,14 +1155,6 @@
           });
       }
 
-      // [MODIFIED] Set initial icon state on load to VISIBLE (eye)
-      isPreviewMode = true; // Default to visible
-      previewInvoiceBtn.classList.add('active');
-      previewInvoiceBtn.setAttribute('aria-pressed', 'true');
-      previewInvoiceBtn.title = 'Hide Values';
-      eyeIcon.classList.remove('hidden');
-      maskedIcon.classList.add('hidden'); // [MODIFIED]
-      
       initializeDashboard();
 
     });
@@ -1368,5 +1162,3 @@
 
 </body>
 </html>
-
-
