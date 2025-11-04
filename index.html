@@ -588,7 +588,11 @@
                 });
                 totalInput.addEventListener('blur', () => {
                     const raw = (totalInput.value || '').replace(/[^0-9.\-]/g, '');
-                    const numeric = parseFloat(raw);
+                    let numeric = parseFloat(raw);
+                    // Auto-convert positive values to negative for payments
+                    if (Number.isFinite(numeric) && numeric > 0) {
+                        numeric = -numeric;
+                    }
                     totalInput.dataset.actual = (Number.isFinite(numeric) ? numeric : 0).toFixed(2);
                     totalInput.value = isPreviewMode ? formatCurrency(parseFloat(totalInput.dataset.actual)) : '**';
                     recalcAndPersistActiveRow();
