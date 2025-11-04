@@ -248,7 +248,7 @@
           clientRest.style.height = maxHeight + 'px';
       }
 
-      function defaultFirstRow() { return { description: 'Products & Services', quantity: 6.0, unit: 'Hrs', rate: 75.00, total: 6.0 * 75.00 }; }
+      function defaultFirstRow() { return { description: 'Products & Services', quantity: 6.0, unit: 'Hrs', rate: 75.00, total: 6.0 * 75.00, isPayment: false }; }
 
       const DEFAULT_NOTES = 'Thank you for your business!';
       function migrateNotes(val) {
@@ -399,7 +399,7 @@
         grandTotalCell.setAttribute('data-actual', formatted);
       }
 
-      function cloneEntry(e) { return { description: e.description, quantity: e.quantity, unit: e.unit, rate: e.rate, total: e.total }; }
+      function cloneEntry(e) { return { description: e.description, quantity: e.quantity, unit: e.unit, rate: e.rate, total: e.total, isPayment: e.isPayment || false }; }
       function parseTimeToDecimal(t) { if (!t) return 0; if (!String(t).includes(':')) { const n = parseFloat(t); return Number.isFinite(n) ? n : 0; } const [h,m]=String(t).split(':'); return (parseInt(h,10)||0)+((parseInt(m,10)||0)/60); }
       function tdText(cls, text) { const td=document.createElement('td'); td.className=cls; td.textContent=text; return td; }
       function parseQtyInput(val, unit) { return unit === 'Hrs' ? parseTimeToDecimal(val) : (parseInt(val, 10) || 0); }
@@ -436,22 +436,41 @@
 
           const entry = invoiceData[activeEditIndex];
           const descEl = document.getElementById('edit-desc');
-          const qtyEl  = document.getElementById('edit-qty');
-          const rateEl = document.getElementById('edit-rate');
-          
-          if (!descEl || !qtyEl || !rateEl) {
+          const totalEl = document.getElementById('edit-total');
+
+          if (!descEl) {
              // Editor wasn't rendered (e.g., on initial load), so nothing to commit.
-             return; 
+             return;
           }
 
           entry.description = descEl.value;
-          entry.quantity = parseQtyInput(qtyEl.value, entry.unit);
-          
-          // Commit rate from its dataset
-          commitRateFromInput(); // This will fix the input's value AND update dataset.actual
-          entry.rate = parseFloat(rateEl.dataset.actual || '0') || 0;
-          
-          entry.total = entry.quantity * entry.rate;
+
+          if (entry.isPayment) {
+              // Payment mode: commit the total value directly
+              if (totalEl && totalEl.tagName === 'INPUT') {
+                  const raw = (totalEl.value || '').replace(/[^0-9.\-]/g, '');
+                  const numeric = parseFloat(raw);
+                  entry.total = Number.isFinite(numeric) ? numeric : 0;
+              }
+              entry.quantity = 0;
+              entry.rate = 0;
+          } else {
+              // Normal mode: calculate total from qty and rate
+              const qtyEl  = document.getElementById('edit-qty');
+              const rateEl = document.getElementById('edit-rate');
+
+              if (!qtyEl || !rateEl) {
+                 return;
+              }
+
+              entry.quantity = parseQtyInput(qtyEl.value, entry.unit);
+
+              // Commit rate from its dataset
+              commitRateFromInput(); // This will fix the input's value AND update dataset.actual
+              entry.rate = parseFloat(rateEl.dataset.actual || '0') || 0;
+
+              entry.total = entry.quantity * entry.rate;
+          }
           saveInvoiceData();
       }
 
@@ -466,24 +485,51 @@
           const rateEl = document.getElementById('edit-rate');
           const totalEl = document.getElementById('edit-total');
 
-          if (!descEl || !qtyEl || !rateEl || !totalEl) return;
+          if (!descEl || !totalEl) return;
 
           row.description = descEl.value;
-          row.quantity = parseQtyInput(qtyEl.value, row.unit);
 
-          // Rate logic for live update
-          if (document.activeElement === rateEl) {
-              const raw = (rateEl.value || '').replace(/[^0-9.]/g, '');
-              const n = parseFloat(raw);
-              row.rate = Number.isFinite(n) ? n : 0;
-              rateEl.dataset.actual = row.rate.toFixed(2); // Update dataset live
+          // If in payment mode, get total directly from input
+          if (row.isPayment) {
+              if (totalEl.tagName === 'INPUT') {
+                  const raw = (totalEl.value || '').replace(/[^0-9.\-]/g, '');
+                  const n = parseFloat(raw);
+                  row.total = Number.isFinite(n) ? n : 0;
+              } else {
+                  // totalEl is a span, shouldn't happen in payment mode
+                  row.total = parseFloat(totalEl.textContent.replace(/[^0-9.\-]/g, '')) || 0;
+              }
+              row.quantity = 0;
+              row.rate = 0;
           } else {
-              // If rate is not active, its value is driven by dataset.actual
-              row.rate = parseFloat(rateEl.dataset.actual || '0') || 0;
+              // Normal calculation mode
+              if (!qtyEl || !rateEl) return;
+
+              row.quantity = parseQtyInput(qtyEl.value, row.unit);
+
+              // Rate logic for live update
+              if (document.activeElement === rateEl) {
+                  const raw = (rateEl.value || '').replace(/[^0-9.]/g, '');
+                  const n = parseFloat(raw);
+                  row.rate = Number.isFinite(n) ? n : 0;
+                  rateEl.dataset.actual = row.rate.toFixed(2); // Update dataset live
+              } else {
+                  // If rate is not active, its value is driven by dataset.actual
+                  row.rate = parseFloat(rateEl.dataset.actual || '0') || 0;
+              }
+
+              row.total = row.quantity * row.rate;
           }
 
-          row.total = row.quantity * row.rate;
-          totalEl.textContent = isPreviewMode ? formatCurrency(row.total) : '**'; // <<-- Polarity Fix Here
+          // Update display
+          if (totalEl.tagName === 'INPUT') {
+              // Don't update while user is typing in it
+              if (document.activeElement !== totalEl) {
+                  totalEl.value = isPreviewMode ? formatCurrency(row.total) : '**';
+              }
+          } else {
+              totalEl.textContent = isPreviewMode ? formatCurrency(row.total) : '**';
+          }
           updateGrandTotal();
           saveInvoiceData();
       }
@@ -506,103 +552,143 @@
 
           if (index === activeEditIndex) {
             // --- This row IS the active editor ---
-            // [MODIFIED] Added shadow-inner-lg
             newRow.className += ' shadow-inner-lg';
 
             const tdDesc = document.createElement('td'); tdDesc.className = 'px-4 py-2';
             const descArea = document.createElement('textarea');
-            descArea.id = 'edit-desc'; // Generic ID
-            // [MODIFIED] Added invisible-input class
+            descArea.id = 'edit-desc';
             descArea.className = 'invisible-input w-full rounded-md border-stone-300 border shadow-sm focus:border-teal-500 focus:ring-teal-500 px-2 py-1 resize-none';
             descArea.rows = 2; descArea.value = entry.description || '';
             tdDesc.appendChild(descArea);
 
             const tdQty = document.createElement('td'); tdQty.className = 'px-4 py-2 whitespace-nowrap text-right';
-            const qtyInput = document.createElement('input');
-            qtyInput.id = 'edit-qty'; // Generic ID
-            qtyInput.setAttribute('inputmode','decimal');
-            // [MODIFIED] Added invisible-input class
-            qtyInput.className = 'invisible-input w-12 text-right rounded-md border-stone-300 border shadow-sm focus:border-teal-500 focus:ring-teal-500 px-2 py-1';
-            qtyInput.value = qtyDisplay;
-            tdQty.appendChild(qtyInput);
-
             const tdRate = document.createElement('td'); tdRate.className = 'px-2 py-2 whitespace-nowrap text-right';
-            const rateInput = document.createElement('input');
-            rateInput.id = 'edit-rate'; // Generic ID
-            rateInput.type = 'text'; rateInput.inputMode = 'decimal';
-            // [MODIFIED] Added invisible-input class
-            rateInput.className = 'invisible-input w-16 text-right rounded-md border-stone-300 border shadow-sm focus:border-teal-500 focus:ring-teal-500 px-2 py-1';
-            rateInput.dataset.actual = actualRate.toFixed(2);
-            rateInput.value = rateDisplay; // Set display value
-            tdRate.appendChild(rateInput);
-
             const tdTotal = document.createElement('td'); tdTotal.className = 'px-2 py-2 whitespace-nowrap text-right';
-            const totalSpan = document.createElement('span');
-            totalSpan.id = 'edit-total'; // Generic ID
-            totalSpan.textContent = totalDisplay;
-            tdTotal.appendChild(totalSpan);
+
+            if (entry.isPayment) {
+                // PAYMENT MODE: Show disabled QTY/RATE and editable TOTAL
+                tdQty.textContent = '—';
+                tdQty.className += ' text-stone-400';
+                tdRate.textContent = '—';
+                tdRate.className += ' text-stone-400';
+
+                const totalInput = document.createElement('input');
+                totalInput.id = 'edit-total';
+                totalInput.type = 'text';
+                totalInput.inputMode = 'decimal';
+                totalInput.className = 'invisible-input w-20 text-right rounded-md border-stone-300 border shadow-sm focus:border-teal-500 focus:ring-teal-500 px-2 py-1';
+                totalInput.value = isPreviewMode ? formatCurrency(actualTotal) : '**';
+                totalInput.dataset.actual = actualTotal.toFixed(2);
+                tdTotal.appendChild(totalInput);
+
+                totalInput.addEventListener('focus', () => {
+                    const actual = totalInput.dataset.actual || '0.00';
+                    totalInput.value = actual;
+                    requestAnimationFrame(() => { try { totalInput.select(); } catch {} });
+                });
+                totalInput.addEventListener('blur', () => {
+                    const raw = (totalInput.value || '').replace(/[^0-9.\-]/g, '');
+                    const numeric = parseFloat(raw);
+                    totalInput.dataset.actual = (Number.isFinite(numeric) ? numeric : 0).toFixed(2);
+                    totalInput.value = isPreviewMode ? formatCurrency(parseFloat(totalInput.dataset.actual)) : '**';
+                    recalcAndPersistActiveRow();
+                });
+                totalInput.addEventListener('input', () => {
+                    recalcAndPersistActiveRow();
+                });
+            } else {
+                // NORMAL MODE: Show editable QTY/RATE and calculated TOTAL
+                const qtyInput = document.createElement('input');
+                qtyInput.id = 'edit-qty';
+                qtyInput.setAttribute('inputmode','decimal');
+                qtyInput.className = 'invisible-input w-12 text-right rounded-md border-stone-300 border shadow-sm focus:border-teal-500 focus:ring-teal-500 px-2 py-1';
+                qtyInput.value = qtyDisplay;
+                tdQty.appendChild(qtyInput);
+
+                const rateInput = document.createElement('input');
+                rateInput.id = 'edit-rate';
+                rateInput.type = 'text';
+                rateInput.inputMode = 'decimal';
+                rateInput.className = 'invisible-input w-16 text-right rounded-md border-stone-300 border shadow-sm focus:border-teal-500 focus:ring-teal-500 px-2 py-1';
+                rateInput.dataset.actual = actualRate.toFixed(2);
+                rateInput.value = rateDisplay;
+                tdRate.appendChild(rateInput);
+
+                const totalSpan = document.createElement('span');
+                totalSpan.id = 'edit-total';
+                totalSpan.textContent = totalDisplay;
+                tdTotal.appendChild(totalSpan);
+
+                rateInput.addEventListener('focus', () => {
+                    const actual = rateInput.dataset.actual || '0.00';
+                    rateInput.value = actual;
+                    requestAnimationFrame(() => { try { rateInput.select(); } catch {} });
+                });
+                rateInput.addEventListener('blur', () => {
+                    commitRateFromInput();
+                    recalcAndPersistActiveRow();
+                });
+                rateInput.addEventListener('input', () => {
+                    recalcAndPersistActiveRow();
+                });
+                qtyInput.addEventListener('input', () => { recalcAndPersistActiveRow(); });
+            }
 
             const tdActions = document.createElement('td'); tdActions.className = 'px-2 py-2 whitespace-nowrap text-center';
+
+            // Add payment toggle button (dollar sign)
+            const toggleBtn = document.createElement('button');
+            toggleBtn.className = entry.isPayment
+                ? 'toggle-payment-button inline-flex items-center justify-center w-8 h-8 rounded-full bg-green-600 hover:bg-green-700 text-white font-bold text-sm shadow-lg border border-stone-200'
+                : 'toggle-payment-button inline-flex items-center justify-center w-8 h-8 rounded-full bg-stone-400 hover:bg-stone-500 text-white font-bold text-sm shadow-lg border border-stone-200';
+            toggleBtn.title = entry.isPayment ? 'Switch to normal mode' : 'Record a payment';
+            toggleBtn.textContent = '$';
+            toggleBtn.dataset.index = index;
+            tdActions.appendChild(toggleBtn);
+
             if (index === 0) {
-                // Only show "Add" button if the active editor is row 0
                 const addBtn = document.createElement('button');
-                addBtn.className = 'add-button inline-flex items-center justify-center w-8 h-8 rounded-full bg-teal-600 hover:bg-teal-700 text-white font-extrabold text-lg shadow-lg border border-stone-200';
+                addBtn.className = 'add-button inline-flex items-center justify-center w-8 h-8 rounded-full bg-teal-600 hover:bg-teal-700 text-white font-extrabold text-lg shadow-lg border border-stone-200 ml-1';
                 addBtn.title = 'Add row';
                 addBtn.textContent = '+';
                 tdActions.appendChild(addBtn);
             } else {
-                // Show "Delete" button for any other row being edited
                 const delBtn = document.createElement('button');
-                delBtn.className = 'delete-button inline-flex items-center justify-center w-8 h-8 rounded-full bg-red-600 hover:bg-red-700 text-white font-extrabold text-lg shadow-lg border border-stone-200';
+                delBtn.className = 'delete-button inline-flex items-center justify-center w-8 h-8 rounded-full bg-red-600 hover:bg-red-700 text-white font-extrabold text-lg shadow-lg border border-stone-200 ml-1';
                 delBtn.title = 'Delete row';
                 delBtn.textContent = '−';
                 delBtn.dataset.index = index;
                 tdActions.appendChild(delBtn);
             }
-            
+
             newRow.appendChild(tdDesc);
             newRow.appendChild(tdQty);
             newRow.appendChild(tdRate);
             newRow.appendChild(tdTotal);
             newRow.appendChild(tdActions);
 
-            // Attach listeners immediately
             requestAnimationFrame(() => autoResizeTextarea(descArea));
-            
-            rateInput.addEventListener('focus', () => {
-                const actual = rateInput.dataset.actual || '0.00';
-                rateInput.value = actual;
-                requestAnimationFrame(() => { try { rateInput.select(); } catch {} });
-            });
-            rateInput.addEventListener('blur', () => {
-                commitRateFromInput(); // This function now uses the generic ID
-                recalcAndPersistActiveRow();
-            });
-            rateInput.addEventListener('input', () => {
-                recalcAndPersistActiveRow(); // Recalc on input
-            });
-
             descArea.addEventListener('input', () => { autoResizeTextarea(descArea); recalcAndPersistActiveRow(); });
-            qtyInput.addEventListener('input', () => { recalcAndPersistActiveRow(); });
 
           } else {
             // --- This row is STATIC ---
             const tdDesc = tdText('px-4 py-2 text-sm text-stone-900 break-words', String(entry.description || ''));
             tdDesc.dataset.index = index;
             tdDesc.dataset.field = 'description';
-            
-            const tdQty = tdText('px-4 py-2 whitespace-nowrap text-sm text-stone-500 text-right', qtyDisplay);
+
+            // Show "—" for payment rows
+            const tdQty = tdText('px-4 py-2 whitespace-nowrap text-sm text-stone-500 text-right', entry.isPayment ? '—' : qtyDisplay);
             tdQty.dataset.index = index;
             tdQty.dataset.field = 'quantity';
-            
-            const tdRate = tdText('px-2 py-2 whitespace-nowrap text-sm text-stone-500 text-right', rateDisplay);
+
+            const tdRate = tdText('px-2 py-2 whitespace-nowrap text-sm text-stone-500 text-right', entry.isPayment ? '—' : rateDisplay);
             tdRate.dataset.index = index;
             tdRate.dataset.field = 'rate';
-            
+
             const tdTotal = tdText('px-2 py-2 whitespace-nowrap text-sm text-stone-500 text-right', totalDisplay);
             tdTotal.dataset.index = index;
-            tdTotal.dataset.field = 'total'; // Not editable, but good for consistency
-            
+            tdTotal.dataset.field = 'total';
+
             const tdActions = document.createElement('td');
             tdActions.className = 'px-2 py-2';
             tdActions.dataset.index = index; // Clicking here will also activate the row
@@ -682,7 +768,56 @@
           }
           return;
         }
-        
+
+        const toggleBtn = event.target.closest('.toggle-payment-button');
+        if (toggleBtn) {
+          // --- Logic for TOGGLING payment mode ---
+          const index = parseInt(toggleBtn.dataset.index, 10);
+
+          // Commit current editor state
+          commitActiveEditor();
+
+          // Toggle the payment mode
+          invoiceData[index].isPayment = !invoiceData[index].isPayment;
+
+          // If switching to payment mode, clear qty/rate and set total to 0 (or keep existing total)
+          if (invoiceData[index].isPayment) {
+              // Keep the current total if it exists, otherwise set to 0
+              if (!invoiceData[index].total) {
+                  invoiceData[index].total = 0;
+              }
+              invoiceData[index].quantity = 0;
+              invoiceData[index].rate = 0;
+          } else {
+              // Switching back to normal mode - restore default values if needed
+              if (!invoiceData[index].quantity && !invoiceData[index].rate) {
+                  invoiceData[index].quantity = 1;
+                  invoiceData[index].rate = 0;
+                  invoiceData[index].total = 0;
+              }
+          }
+
+          // Stay on the same row
+          activeEditIndex = index;
+
+          renderInvoice();
+          saveInvoiceData();
+
+          // Focus the appropriate field
+          if (invoiceData[index].isPayment) {
+              const totalInput = document.getElementById('edit-total');
+              if (totalInput) {
+                  requestAnimationFrame(() => totalInput.focus());
+              }
+          } else {
+              const descArea = document.getElementById('edit-desc');
+              if (descArea) {
+                  requestAnimationFrame(() => descArea.focus());
+              }
+          }
+          return;
+        }
+
         if (editableCell) {
             const index = parseInt(editableCell.dataset.index, 10);
             if (index === activeEditIndex) return; // Already editing this row
@@ -883,8 +1018,14 @@
 
         const dataRows = (window.invoiceData || []);
         const rows = dataRows.map(entry => {
-            const qtyDisplay = entry.unit === 'Hrs' ? (Number(entry.quantity) || 0).toFixed(2) : (parseInt(entry.quantity, 10) || 0);
-            return [ String(entry.description || ''), qtyDisplay, formatCurrency(entry.rate), formatCurrency(entry.total) ];
+            if (entry.isPayment) {
+                // Payment row: show description and total only
+                return [ String(entry.description || ''), '—', '—', formatCurrency(entry.total) ];
+            } else {
+                // Normal row: show all fields
+                const qtyDisplay = entry.unit === 'Hrs' ? (Number(entry.quantity) || 0).toFixed(2) : (parseInt(entry.quantity, 10) || 0);
+                return [ String(entry.description || ''), qtyDisplay, formatCurrency(entry.rate), formatCurrency(entry.total) ];
+            }
         });
         const grandTotal = dataRows.reduce((sum, item) => sum + (Number(item.total) || 0), 0);
 
