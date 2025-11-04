@@ -1052,6 +1052,42 @@
       if (invoiceNumberInput) invoiceNumberInput.addEventListener('input', saveInvoiceData);
 
       // [MODIFIED] To use new address fields
+      function drawPdfHeader(doc, currentY, margin, pageWidth, teal_600, stone_700, invoiceNumber, dateIssued, unused, pdfA11y) {
+        // Draw company logo/name
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(16);
+        doc.setTextColor.apply(null, teal_600);
+        doc.text('AI', margin, currentY);
+
+        const aiWidth = doc.getTextWidth('AI');
+        doc.setTextColor.apply(null, stone_700);
+        doc.text('IT.', margin + aiWidth, currentY);
+
+        // Draw invoice number and date on the right side
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(10);
+        doc.setTextColor.apply(null, stone_700);
+
+        const invoiceLabel = 'INVOICE:';
+        const invoiceLabelWidth = doc.getTextWidth(invoiceLabel);
+        const invoiceValue = '#' + invoiceNumber;
+
+        const dateLabel = 'DATE ISSUED:';
+        const dateLabelWidth = doc.getTextWidth(dateLabel);
+
+        // Position invoice number
+        const rightX = pageWidth - margin;
+        doc.text(invoiceLabel, rightX - doc.getTextWidth(invoiceValue) - doc.getTextWidth(invoiceLabel) - 2, currentY - 6, { align: 'left' });
+        doc.setFont('helvetica', 'bold');
+        doc.text(invoiceValue, rightX, currentY - 6, { align: 'right' });
+
+        // Position date
+        doc.setFont('helvetica', 'bold');
+        doc.text(dateLabel, rightX - doc.getTextWidth(dateIssued) - dateLabelWidth - 2, currentY, { align: 'left' });
+        doc.setFont('helvetica', 'bold');
+        doc.text(dateIssued, rightX, currentY, { align: 'right' });
+      }
+
       function drawPdfAddresses(doc, currentY, margin, halfPageWidth, teal_600, stone_700) {
         const fromVal = (fromLine1.value + '\n' + fromRest.value).trim();
         const clientVal = (clientLine1.value + '\n' + clientRest.value).trim();
