@@ -73,11 +73,10 @@
 
       <div class="flex items-start justify-between px-6 pb-6">
         <div class="flex-1 pt-2">
-          <a href="https://www.aiit.support" target="_blank" rel="noopener noreferrer">
-            <span class="text-2xl font-bold text-stone-800">
-              <span class="text-teal-600">AI</span>IT.
-            </span>
-          </a>
+          <div class="text-2xl font-bold text-stone-800 flex items-center">
+            <input id="logo-part1" type="text" maxlength="10" class="invisible-input text-teal-600 font-bold w-auto" style="min-width: 2ch; max-width: 10ch;" />
+            <input id="logo-part2" type="text" maxlength="10" class="invisible-input text-stone-800 font-bold w-auto" style="min-width: 2ch; max-width: 10ch;" />
+          </div>
         </div>
         <div class="flex-1 flex justify-end">
           <div class="flex flex-col items-end gap-y-2">
@@ -173,7 +172,9 @@
       const clientRest = document.getElementById('client-rest');
       const fromLine1 = document.getElementById('from-line1');
       const fromRest = document.getElementById('from-rest');
-      
+      const logoPart1 = document.getElementById('logo-part1');
+      const logoPart2 = document.getElementById('logo-part2');
+
       const invoiceTableBody = document.querySelector('#invoiceTable tbody');
       const grandTotalCell = document.getElementById('grandTotalCell');
       const invoiceNumberInput = document.getElementById('invoiceNumber');
@@ -189,6 +190,7 @@
         console.assert(!!invoiceTableBody, 'invoiceTableBody missing');
         // [MODIFIED] Updated assertion
         console.assert(!!fromLine1 && !!fromRest && !!clientLine1 && !!clientRest, 'address fields missing');
+        console.assert(!!logoPart1 && !!logoPart2, 'logo fields missing');
         console.assert(!!invoiceNumberInput, 'invoiceNumberInput missing');
         console.assert(!!dateIssuedInput, 'dateIssuedInput missing');
         console.assert(!!exportPdfBtn && !!newInvoiceBtn, 'header buttons missing');
@@ -222,6 +224,15 @@
         if (!el) return;
         el.style.height = 'auto';
         el.style.height = el.scrollHeight + 'px';
+      }
+
+      // --- [NEW] Function to auto-resize input width ---
+      function autoResizeInput(el) {
+        if (!el) return;
+        const value = el.value || el.placeholder || '';
+        const minWidth = 2; // minimum characters
+        const width = Math.max(minWidth, value.length);
+        el.style.width = width + 'ch';
       }
 
       // --- [NEW] Function to split address for new inputs ---
@@ -286,14 +297,19 @@
 
       const api = { getInvoice: () => fetchJson('/api/invoices'), saveInvoice: (payload) => postJson('/api/invoices', payload) };
 
-      // [MODIFIED] To handle new address fields
+      // [MODIFIED] To handle new address fields and logo
       function setGlobalDefaults() {
         if (invoiceNumberInput) invoiceNumberInput.value = localStorage.getItem('lastInvoiceNumber') || '001';
-        
+
+        logoPart1.value = localStorage.getItem('logoPart1') || 'AI';
+        logoPart2.value = localStorage.getItem('logoPart2') || 'IT.';
+        autoResizeInput(logoPart1);
+        autoResizeInput(logoPart2);
+
         const [from1, fromRestVal] = splitAddress(localStorage.getItem('lastFrom') || 'Your Company, Inc.');
         fromLine1.value = from1;
         fromRest.value = fromRestVal;
-        
+
         const [client1, clientRestVal] = splitAddress(localStorage.getItem('lastClient') || 'Customer Name');
         clientLine1.value = client1;
         clientRest.value = clientRestVal;
@@ -302,10 +318,19 @@
         dateIssuedInput.value = getTodayDateString();
       }
 
-      // [MODIFIED] To handle new address fields
+      // [MODIFIED] To handle new address fields and logo
       function ensureDefaults() {
         if (invoiceNumberInput && !invoiceNumberInput.value) invoiceNumberInput.value = localStorage.getItem('lastInvoiceNumber') || '001';
-        
+
+        if (!logoPart1.value) {
+            logoPart1.value = localStorage.getItem('logoPart1') || 'AI';
+            autoResizeInput(logoPart1);
+        }
+        if (!logoPart2.value) {
+            logoPart2.value = localStorage.getItem('logoPart2') || 'IT.';
+            autoResizeInput(logoPart2);
+        }
+
         if (!fromLine1.value && !fromRest.value) {
             const [from1, fromRestVal] = splitAddress(localStorage.getItem('lastFrom') || 'Your Company, Inc.');
             fromLine1.value = from1;
@@ -362,17 +387,19 @@
 
       let saveDebounceId; function saveInvoiceData() { if (saveDebounceId) clearTimeout(saveDebounceId); saveDebounceId = setTimeout(_saveInvoiceData, 250); }
       
-      // [MODIFIED] To handle new address fields
+      // [MODIFIED] To handle new address fields and logo
       function _saveInvoiceData() {
         const n = document.getElementById('notes');
         const canonicalNotes = migrateNotes(n ? n.value : '');
         if (n) n.value = canonicalNotes;
-        
+
         const contractorName = (fromLine1.value + '\n' + fromRest.value).trim();
         const clientName = (clientLine1.value + '\n' + clientRest.value).trim();
-        
+
         try {
           if (invoiceNumberInput) localStorage.setItem('lastInvoiceNumber', invoiceNumberInput.value);
+          localStorage.setItem('logoPart1', logoPart1.value);
+          localStorage.setItem('logoPart2', logoPart2.value);
           localStorage.setItem('lastFrom', contractorName);
           localStorage.setItem('lastClient', clientName);
           localStorage.setItem('lastNotes', canonicalNotes);
@@ -860,25 +887,32 @@
       dateIssuedInput.addEventListener('change', saveInvoiceData);
       if (notesInput) notesInput.addEventListener('input', () => { autoResizeTextarea(notesInput); saveInvoiceData(); });
 
+      // [MODIFIED] New event listeners for logo fields
+      logoPart1.addEventListener('input', () => { autoResizeInput(logoPart1); saveInvoiceData(); });
+      logoPart2.addEventListener('input', () => { autoResizeInput(logoPart2); saveInvoiceData(); });
+
       // [MODIFIED] New event listeners for new fields
       fromLine1.addEventListener('input', saveInvoiceData);
       fromRest.addEventListener('input', () => { syncTextareaHeights(); saveInvoiceData(); });
       clientLine1.addEventListener('input', saveInvoiceData);
       clientRest.addEventListener('input', () => { syncTextareaHeights(); saveInvoiceData(); });
-      
+
       if (invoiceNumberInput) invoiceNumberInput.addEventListener('input', saveInvoiceData);
 
-      // [MODIFIED] To use new address fields
+      // [MODIFIED] To use new address fields and logo
       function drawPdfHeader(doc, currentY, margin, pageWidth, teal_600, stone_700, invoiceNumber, dateIssued, unused, pdfA11y) {
         // Draw company logo/name
+        const logo1 = logoPart1.value || 'AI';
+        const logo2 = logoPart2.value || 'IT.';
+
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(16);
         doc.setTextColor.apply(null, teal_600);
-        doc.text('AI', margin, currentY);
+        doc.text(logo1, margin, currentY);
 
-        const aiWidth = doc.getTextWidth('AI');
+        const logo1Width = doc.getTextWidth(logo1);
         doc.setTextColor.apply(null, stone_700);
-        doc.text('IT.', margin + aiWidth, currentY);
+        doc.text(logo2, margin + logo1Width, currentY);
 
         // Draw invoice number and date on the right side
         doc.setFont('helvetica', 'bold');
@@ -1110,11 +1144,16 @@
 
       function clearInvoice(resetNumber = true) {
         invoiceData = [ defaultFirstRow() ];
-        
+
+        logoPart1.value = localStorage.getItem('logoPart1') || 'AI';
+        logoPart2.value = localStorage.getItem('logoPart2') || 'IT.';
+        autoResizeInput(logoPart1);
+        autoResizeInput(logoPart2);
+
         const [from1, fromRestVal] = splitAddress(localStorage.getItem('lastFrom') || 'Your Company, Inc.');
         fromLine1.value = from1;
         fromRest.value = fromRestVal;
-        
+
         const [client1, clientRestVal] = splitAddress(localStorage.getItem('lastClient') || 'Customer Name');
         clientLine1.value = client1;
         clientRest.value = clientRestVal;
