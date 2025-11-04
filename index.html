@@ -546,11 +546,18 @@
             if (index === 0) {
                 // Only show "Add" button if the active editor is row 0
                 const addBtn = document.createElement('button');
-                // [MODIFIED] Added shadow-lg and border classes
                 addBtn.className = 'add-button inline-flex items-center justify-center w-8 h-8 rounded-full bg-teal-600 hover:bg-teal-700 text-white font-extrabold text-lg shadow-lg border border-stone-200';
                 addBtn.title = 'Add row';
                 addBtn.textContent = '+';
                 tdActions.appendChild(addBtn);
+            } else {
+                // Show "Delete" button for any other row being edited
+                const delBtn = document.createElement('button');
+                delBtn.className = 'delete-button inline-flex items-center justify-center w-8 h-8 rounded-full bg-red-600 hover:bg-red-700 text-white font-extrabold text-lg shadow-lg border border-stone-200';
+                delBtn.title = 'Delete row';
+                delBtn.textContent = '−';
+                delBtn.dataset.index = index;
+                tdActions.appendChild(delBtn);
             }
             
             newRow.appendChild(tdDesc);
@@ -621,16 +628,17 @@
       // --- [HEAVILY MODIFIED] ---
       invoiceTableBody.addEventListener('click', function(event) {
         const addBtn = event.target.closest('.add-button');
+        const delBtn = event.target.closest('.delete-button');
         const editableCell = event.target.closest('td[data-index]');
 
         if (addBtn) {
           // --- Logic for ADDING a row ---
           // This button only exists when activeEditIndex is 0.
-          
+
           commitActiveEditor(); // Save current data from row 0
 
           const entryToAdd = invoiceData[0]; // The entry is already saved
-          
+
           // Check for empty description
           if (!entryToAdd.description || entryToAdd.description.trim() === "") {
               entryToAdd.description = "Products & Services";
@@ -640,13 +648,38 @@
           invoiceData[0] = defaultFirstRow(); // Reset the first row to defaults
           activeEditIndex = 0; // Keep editor on the new first row
 
-          renderInvoice(); 
+          renderInvoice();
           saveInvoiceData(); // Save the updated array
 
           const firstDesc = document.getElementById('edit-desc');
           if (firstDesc) {
               requestAnimationFrame(() => firstDesc.focus());
            }
+          return;
+        }
+
+        if (delBtn) {
+          // --- Logic for DELETING a row ---
+          const index = parseInt(delBtn.dataset.index, 10);
+
+          // Remove the row from invoiceData
+          invoiceData.splice(index, 1);
+
+          // Ensure there's always at least one row
+          if (invoiceData.length === 0) {
+              invoiceData = [ defaultFirstRow() ];
+          }
+
+          // Move editor back to row 0
+          activeEditIndex = 0;
+
+          renderInvoice();
+          saveInvoiceData();
+
+          const firstDesc = document.getElementById('edit-desc');
+          if (firstDesc) {
+              requestAnimationFrame(() => firstDesc.focus());
+          }
           return;
         }
         
