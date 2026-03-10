@@ -1,0 +1,11 @@
+The RATE zeroes out upon 'reveal values' button press
+
+Add a +/- incrementor to the HOURS / QTY
+
+Grab and Move button
+
+Save button during line editing
+
+Do not export the top line
+
+Page 2 Totals: The "Total Amount Due" is repeated on Page 2, but it doesn't clearly distinguish between the "Page Total" and the "Grand Total.
